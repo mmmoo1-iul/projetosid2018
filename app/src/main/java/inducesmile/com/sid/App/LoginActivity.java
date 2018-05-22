@@ -26,7 +26,7 @@ public class LoginActivity extends AppCompatActivity {
         String unm = sp1.getString("Unm", null);
         String pass = sp1.getString("Psw", null);
         ip = sp1.getString("ip", null);
-        port = sp1.getString("port", null);
+        port = sp1.getString("port", null);//para apagar
         username = sp1.getString("Unm", null);
         password = sp1.getString("Psw", null);
         System.out.println("Login Window!");
