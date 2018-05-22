@@ -28,7 +28,6 @@ public class LoginActivity extends AppCompatActivity {
         ((EditText)(findViewById(R.id.password))).setText(password);
         ((EditText)(findViewById(R.id.ip))).setText(ip);
         ((EditText)(findViewById(R.id.port))).setText(port);
-        // asdjsadjf
     }
 
     public void loginClick(View v) {
