@@ -33,7 +33,7 @@ public class ConnectionHandler {
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
             conn.connect();
-            String paramsString = sb_params.toString();
+            String paramsString = sb_params.toString();//TESTE
             DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
             wr.writeBytes(paramsString);
             wr.flush();
