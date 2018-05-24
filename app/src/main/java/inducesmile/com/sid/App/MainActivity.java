@@ -54,14 +54,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void refreshDB(View v) {
-        EditText idCultura = findViewById(R.id.idCultura);
+        EditText idCultura = ((EditText) (findViewById(R.id.idCultura)));
+        System.out.println(idCultura.getText().toString());
         if (idCultura.getText() != null) {
             writeToDB(idCultura.getText().toString());
             idCultura.onEditorAction(EditorInfo.IME_ACTION_DONE);
             updateNomeCultura();
             updateNumeroMedicoes();
             updateNumeroAlertas();
-
         }
     }
 
