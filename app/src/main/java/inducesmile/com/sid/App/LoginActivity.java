@@ -7,12 +7,19 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 
+import org.json.JSONArray;
+
+import java.util.HashMap;
+
+import inducesmile.com.sid.Connection.ConnectionHandler;
 import inducesmile.com.sid.Helper.UserLogin;
 import inducesmile.com.sid.R;
 
 //Esta aplicação serve como base para vos ajudar, precisam de completar os métodos To do de modo a que a aplicação faça o minimo que é suposto, podem adicionar novas features ou mudar a UI se acharem relevante.
 public class LoginActivity extends AppCompatActivity {
     private String ip, port, username, password;
+    private static final String IP = UserLogin.getInstance().getIp();
+    private static final String PORT = UserLogin.getInstance().getPort();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +46,17 @@ public class LoginActivity extends AppCompatActivity {
         Ed.putString("port", ((EditText) (findViewById(R.id.port))).getText().toString());
         Ed.apply();
         new UserLogin(ip, port, username, password);
+
+
+        HashMap<String, String> params = new HashMap<>();
+        params.put("username", username);
+        params.put("password", password);
+
+        final String checkLogin = "http://" + IP + ":" + PORT + "/login.php";
+
+        ConnectionHandler jParser = new ConnectionHandler();
+        JSONArray loginConfirmation = jParser.getJSONFromUrl(checkLogin, params);
+
         Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
         finish();
