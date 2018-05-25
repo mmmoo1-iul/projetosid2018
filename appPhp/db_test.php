@@ -10,7 +10,7 @@
 
 		<?php
 			// Ligação à BD: mysqli('servidor', 'utilizador', 'password', 'nome_bd')
-			$db = new mysqli('127.0.0.1', 'test_user', 'test_password', 'php_tests');
+			$db = new mysqli('127.0.0.1', 'root', '', 'projetosid');
 
 			// Testar a ligação
 			if($db->connect_errno > 0){ // Código de erro acima de 0, significa que houve problemas

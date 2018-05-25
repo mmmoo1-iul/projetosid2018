@@ -43,7 +43,7 @@ public class ConnectionHandler {
             StringBuilder result = new StringBuilder();
             String line;
             while ((line = reader.readLine()) != null) {
-                Log.d("Line",line);
+                Log.d("Line", line);
                 result.append(line);
             }
             conn.disconnect();

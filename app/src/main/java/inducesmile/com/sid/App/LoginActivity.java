@@ -2,13 +2,23 @@ package inducesmile.com.sid.App;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.net.URL;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 
 import inducesmile.com.sid.Connection.ConnectionHandler;
@@ -18,8 +28,6 @@ import inducesmile.com.sid.R;
 //Esta aplicação serve como base para vos ajudar, precisam de completar os métodos To do de modo a que a aplicação faça o minimo que é suposto, podem adicionar novas features ou mudar a UI se acharem relevante.
 public class LoginActivity extends AppCompatActivity {
     private String ip, port, username, password;
-    private static final String IP = UserLogin.getInstance().getIp();
-    private static final String PORT = UserLogin.getInstance().getPort();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,29 +46,38 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void loginClick(View v) {
+        username = ((EditText) (findViewById(R.id.username))).getText().toString();
+        password = ((EditText) (findViewById(R.id.password))).getText().toString();
+        ip = ((EditText) (findViewById(R.id.ip))).getText().toString();
+        port = ((EditText) (findViewById(R.id.port))).getText().toString();
         SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
         SharedPreferences.Editor Ed = sp.edit();
-        Ed.putString("Unm", ((EditText) (findViewById(R.id.username))).getText().toString());
-        Ed.putString("Psw", ((EditText) (findViewById(R.id.password))).getText().toString());
-        Ed.putString("ip", ((EditText) (findViewById(R.id.ip))).getText().toString());
-        Ed.putString("port", ((EditText) (findViewById(R.id.port))).getText().toString());
+        Ed.putString("Unm", username);
+        Ed.putString("Psw", password);
+        Ed.putString("ip", ip);
+        Ed.putString("port", port);
         Ed.apply();
+
         new UserLogin(ip, port, username, password);
+        final String checkLogin = "http://" + ip + ":" + port + "/migration.php?";    //+"uid=" + username + "&pwd=" + password;
+        System.out.println("\n\n\n" + checkLogin + "\n\n\n");
 
-
-        HashMap<String, String> params = new HashMap<>();
-        params.put("username", username);
-        params.put("password", password);
-
-        final String checkLogin = "http://" + IP + ":" + PORT + "/login.php";
-
-        ConnectionHandler jParser = new ConnectionHandler();
-        JSONArray loginConfirmation = jParser.getJSONFromUrl(checkLogin, params);
+        AsyncTask task = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                HashMap<String, String> params = new HashMap<>();
+                params.put("uid", username);
+                params.put("pwd", password);
+                params.put("db","HumidadeTemperatura");
+                ConnectionHandler jParser = new ConnectionHandler();
+                JSONArray loginConfirmation = jParser.getJSONFromUrl(checkLogin, params);
+                return loginConfirmation;
+            }
+        }.execute();
 
         Intent i = new Intent(this, MainActivity.class);
         startActivity(i);
         finish();
     }
-
 
 }
