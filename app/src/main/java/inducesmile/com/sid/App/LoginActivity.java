@@ -59,14 +59,13 @@ public class LoginActivity extends AppCompatActivity {
         Ed.putString("port", port);
         Ed.apply();
 
-        new UserLogin(ip, port, username, password);
         final String checkLogin = "http://" + ip + ":" + port + "/sid/checkLogin.php";
-
 
         task = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
                 if (!task.isCancelled() &&!stringResult.equals("WORKED")) {
+                    new UserLogin(ip, port, username, password);
                     AsyncTask otherTask = null;
                     HashMap<String, String> params = new HashMap<>();
                     params.put("uid", username);

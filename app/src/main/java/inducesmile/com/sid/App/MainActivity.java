@@ -14,6 +14,7 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.util.HashMap;
 
 import inducesmile.com.sid.Connection.ConnectionHandler;
@@ -21,6 +22,7 @@ import inducesmile.com.sid.DataBase.DataBaseHandler;
 import inducesmile.com.sid.DataBase.DataBaseReader;
 import inducesmile.com.sid.Helper.UserLogin;
 import inducesmile.com.sid.R;
+
 @SuppressWarnings("all")
 public class MainActivity extends AppCompatActivity {
 
@@ -126,8 +128,8 @@ public class MainActivity extends AppCompatActivity {
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
             HashMap<String, String> params = new HashMap<>();
-            params.put("username", username);
-            params.put("password", password);
+            params.put("usd", username);
+            params.put("pwd", password);
             params.put("idCult", idCultura);
             ConnectionHandler jParser = new ConnectionHandler();
             JSONArray jsonHumidadeTemperatura = jParser.getJSONFromUrl(READ_HUMIDADE_TEMPERATURA, params);
