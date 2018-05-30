@@ -9,10 +9,7 @@ import android.view.View;
 import android.widget.EditText;
 
 import org.json.JSONArray;
-import org.json.JSONException;
 
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.HashMap;
 
 import inducesmile.com.sid.Connection.ConnectionHandler;
@@ -69,7 +66,7 @@ public class LoginActivity extends AppCompatActivity {
         task = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
-                if (!task.isCancelled() && !stringResult.equals("WORKED")) {
+                if (!stringResult.equals("WORKED")) {
                     AsyncTask otherTask = null;
                     HashMap<String, String> params = new HashMap<>();
                     params.put("uid", username);
@@ -77,21 +74,6 @@ public class LoginActivity extends AppCompatActivity {
                     params.put("db", "HumidadeTemperatura");
                     stringResult = ConnectionHandler.getStringFromURL(checkLogin, params);
                     if (stringResult != null && stringResult.equals("WORKED")) {
-                        otherTask = new AsyncTask() {
-                            @Override
-                            protected Object doInBackground(Object[] objects) {
-                                String startMigration = "http://" + ip + ":" + port + "/sid/startMigration.php";
-                                HashMap<String, String> params = new HashMap<>();
-                                params.put("uid", username);
-                                params.put("pwd", password);
-                                try {
-                                    JSONArray array = new ConnectionHandler().getJSONFromUrl(startMigration, params);
-
-                                } catch (Exception e) {
-                                }
-                                return null;
-                            }
-                        }.execute();
                         Intent i = new Intent(instance, MainActivity.class);
                         startActivity(i);
                         finish();

@@ -1,8 +1,11 @@
 package inducesmile.com.sid.App;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteConstraintException;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,8 +18,13 @@ import com.jjoe64.graphview.LegendRenderer;
 import com.jjoe64.graphview.series.DataPoint;
 import com.jjoe64.graphview.series.LineGraphSeries;
 
-import java.util.Calendar;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
+import java.util.Calendar;
+import java.util.HashMap;
+
+import inducesmile.com.sid.Connection.ConnectionHandler;
 import inducesmile.com.sid.DataBase.DataBaseHandler;
 import inducesmile.com.sid.DataBase.DataBaseReader;
 import inducesmile.com.sid.R;
@@ -33,9 +41,11 @@ public class GraphicActivity extends AppCompatActivity {
     String yearString;
     String monthString;
     String dayString;
+    GraphicActivity instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        instance = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graphic);
         graph = (GraphView) findViewById(R.id.graph);
@@ -52,8 +62,7 @@ public class GraphicActivity extends AppCompatActivity {
         }
         dateToString();
         transformDateString();
-        Cursor cursor = getCursor();
-        drawGraph(cursor);
+        getCursor();
     }
 
 
@@ -77,21 +86,62 @@ public class GraphicActivity extends AppCompatActivity {
         text.setText(yearString + "-" + monthString + "-" + dayString);
     }
 
-    public Cursor getCursor() {
-
+    public void getCursor() {
         //To do, ir à base de dados buscar o cursor do dia selecionado.
+        db.dbClear();
+        AsyncTask otherTask = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                SharedPreferences sp1 = instance.getSharedPreferences("Login", MODE_PRIVATE);
+                String username = sp1.getString("Unm", null);
+                String password = sp1.getString("Psw", null);
+                String ip = sp1.getString("ip", null);
+                String port = sp1.getString("port", null);
+                String startMigration = "http://" + ip + ":" + port + "/sid/startMigration.php";
+                HashMap<String, String> params = new HashMap<>();
+                params.put("uid", username);
+                params.put("pwd", password);
+                try {
+                    JSONArray array = new ConnectionHandler().getJSONFromUrl(startMigration, params);
+                    for (int i = 0; i < array.length(); i++) {
+                        JSONObject obj = (JSONObject) array.get(i);
+                        double valorTemp, valorHum;
+                        int id;
+                        String data, hora;
+                        id = obj.getInt("IDMEDICAO");
+                        valorHum = obj.getDouble("VALORMEDICAOHUMIDADE");
+                        valorTemp = obj.getDouble("VALORMEDICAOTEMPERATURA");
+                        data = obj.getString("DATAMEDICAO");
+                        hora = obj.getString("HORAMEDICAO");
+                        try {
+                            db.insert_Humidade_Temperatura(id, hora, valorTemp, valorHum, data);
+                        } catch (SQLiteConstraintException e){
+                        }
+                    }
+                    reader = new DataBaseReader(db);
+                    Cursor cursor = reader.ReadHumidadeTemperatura("DataMedicao='" + yearString + "-" + monthString + "-" + dayString + "'");
+                    drawGraph(cursor);
+                } catch (Exception e) {
+                }
+                return null;
+            }
+        }.execute();
 
-        reader = new DataBaseReader(db);
-        Cursor cursor = reader.ReadHumidadeTemperatura("DataMedicao='" + yearString + "-" + monthString + "-" + dayString + "'");
-        return cursor;
     }
 
 
     //A parte do dia selecionado no calendario ser guardado nas variáveis necessárias nesta classe já está feito, não precisam de mexer em nada referente ao calendário a não ser que queiram melhorar o que eu fiz.
     public void showDatePicker(View v) {
-        Intent intent = new Intent(GraphicActivity.this, DatePickerActivity.class);
-        startActivity(intent);
-        finish();
+        AsyncTask t = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                Intent intent = new Intent(GraphicActivity.this, DatePickerActivity.class);
+                startActivity(intent);
+                finish();
+                return null;
+            }
+        }.execute();
+
     }
 
     //Para o gráfico ser desenhado precisam de pelo menos dois valores num dia (é um grafico de linhas), ou seja o cursor entregue a esta função tem de ter registos em duas alturas diferentes no mesmo dia, se quiserem desenhar so com um valor têm de alterar o grafico para um grafico de pontos, este é o link da api que eu usei http://www.android-graphview.org//
