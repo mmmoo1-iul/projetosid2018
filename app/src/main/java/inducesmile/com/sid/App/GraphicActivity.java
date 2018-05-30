@@ -151,14 +151,15 @@ public class GraphicActivity extends AppCompatActivity {
         double last_value = 0.0;
 
         DataPoint[] datapointsTemperatura = new DataPoint[cursor.getCount()];
+        Log.d("TotalTemperatura",Integer.toString(datapointsTemperatura.length));
         DataPoint[] datapointsHumidade = new DataPoint[cursor.getCount()];
 
         //Ir a cada entrada, converter os minutos para decimais e por no grafico
         while (cursor.moveToNext()) {
-            Integer dataTemperatura = cursor.getInt(cursor.getColumnIndex("VALORMEDICAOTEMPERATURA"));
-            Integer dataHumidade = cursor.getInt(cursor.getColumnIndex("VALORMEDICAOHUMIDADE"));
+            Integer dataTemperatura = cursor.getInt(cursor.getColumnIndex("ValorMedicaoTemperatura"));
+            Integer dataHumidade = cursor.getInt(cursor.getColumnIndex("ValorMedicaoHumidade"));
 
-            String horaString = cursor.getString(cursor.getColumnIndex("HORAMEDICAO"));
+            String horaString = cursor.getString(cursor.getColumnIndex("HoraMedicao"));
             double horaForGraph = convertHourStringToDouble(horaString);
 
             if (helper == 0)
