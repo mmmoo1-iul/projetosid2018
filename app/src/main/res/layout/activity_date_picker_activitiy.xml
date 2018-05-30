@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="inducesmile.com.sid.App.DatePickerActivitiy">
+    tools:context="inducesmile.com.sid.App.DatePickerActivity">
 
     <DatePicker
         android:id="@+id/datePicker"

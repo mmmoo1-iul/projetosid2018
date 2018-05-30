@@ -9,7 +9,7 @@ import android.widget.DatePicker;
 
 import inducesmile.com.sid.R;
 
-public class DatePickerActivitiy extends AppCompatActivity {
+public class DatePickerActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,7 +18,7 @@ public class DatePickerActivitiy extends AppCompatActivity {
     }
 
     public void confirmChoice(View v) {
-        DatePicker datePicker = findViewById(R.id.datePicker);
+        DatePicker datePicker = (DatePicker) findViewById(R.id.datePicker);
         int[] yearMonthDay = new int[3];
 
         yearMonthDay[0] = datePicker.getYear();

@@ -35,8 +35,10 @@
         android:layout_marginTop="8dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.493">
 
         <HorizontalScrollView
             android:layout_width="match_parent"
@@ -54,47 +56,37 @@
 
                     <TableRow
                         android:id="@+id/headerRow"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent">
-
-                        <TextView
-                            android:id="@+id/nomeVariavel"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:padding="20dp"
-                            android:text="NomeVariavel"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/data"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:padding="20dp"
-                            android:text="Data"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/hora"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:padding="20dp"
-                            android:text="Hora"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/valor"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:padding="20dp"
-                            android:text="Valor"
-                            android:textStyle="bold" />
+                        android:layout_width="359dp"
+                        android:layout_height="match_parent"
+                        android:isScrollContainer="false"
+                        android:scrollbars="none">
 
                         <TextView
                             android:id="@+id/alerta"
-                            android:layout_width="wrap_content"
+                            android:layout_width="113dp"
                             android:layout_height="wrap_content"
+                            android:gravity="center"
                             android:padding="20dp"
                             android:text="Alerta"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/valorTemp"
+                            android:layout_width="126dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:isScrollContainer="false"
+                            android:padding="20dp"
+                            android:text="ValorTemp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/valorHum"
+                            android:layout_width="129dp"
+                            android:layout_height="wrap_content"
+                            android:gravity="center"
+                            android:padding="20dp"
+                            android:text="ValorHum"
                             android:textStyle="bold" />
 
                     </TableRow>

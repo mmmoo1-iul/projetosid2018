@@ -43,14 +43,14 @@ public class AlertasActivity extends AppCompatActivity {
             nome = culturaCursor.getString(culturaCursor.getColumnIndex("NomeCultura"));
         }
 
-        TextView tv = findViewById(R.id.nome_cultura_alerta_tv);
+        TextView tv = (TextView) findViewById(R.id.nome_cultura_alerta_tv);
         if (nome!=null){
         tv.setText(nome);}
     }
 
     private void listAlertas(Cursor alertasCursor){
 
-        TableLayout table = findViewById(R.id.tableAlertas);
+        TableLayout table = (TableLayout) findViewById(R.id.tableAlertas);
         while (alertasCursor.moveToNext()){
             TableRow row = new TableRow(this);
             row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));

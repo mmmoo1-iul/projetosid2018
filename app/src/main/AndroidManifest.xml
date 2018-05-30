@@ -21,7 +21,7 @@
         </activity>
         <activity android:name=".App.MainActivity" />
         <activity android:name=".App.AlertasActivity" />
-        <activity android:name=".App.DatePickerActivitiy"></activity>
+        <activity android:name=".App.DatePickerActivity"></activity>
     </application>
 
 </manifest>

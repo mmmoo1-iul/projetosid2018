@@ -1,6 +1,5 @@
 package inducesmile.com.sid.App;
 
-import android.app.DialogFragment;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -8,8 +7,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.TextView;
 
 import com.jjoe64.graphview.DefaultLabelFormatter;
@@ -24,6 +21,7 @@ import inducesmile.com.sid.DataBase.DataBaseHandler;
 import inducesmile.com.sid.DataBase.DataBaseReader;
 import inducesmile.com.sid.R;
 
+@SuppressWarnings("all")
 public class GraphicActivity extends AppCompatActivity {
 
     DataBaseHandler db = new DataBaseHandler(this);
@@ -40,7 +38,7 @@ public class GraphicActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graphic);
-        graph = findViewById(R.id.graph);
+        graph = (GraphView) findViewById(R.id.graph);
 
         if (getIntent().hasExtra("date")) {
             int[] yearMonthDay = getIntent().getIntArrayExtra("date");
@@ -75,7 +73,7 @@ public class GraphicActivity extends AppCompatActivity {
     }
 
     private void transformDateString() {
-        TextView text = findViewById(R.id.graphicDate);
+        TextView text = (TextView) findViewById(R.id.graphicDate);
         text.setText(yearString + "-" + monthString + "-" + dayString);
     }
 
@@ -91,7 +89,7 @@ public class GraphicActivity extends AppCompatActivity {
 
     //A parte do dia selecionado no calendario ser guardado nas variáveis necessárias nesta classe já está feito, não precisam de mexer em nada referente ao calendário a não ser que queiram melhorar o que eu fiz.
     public void showDatePicker(View v) {
-        Intent intent = new Intent(GraphicActivity.this, DatePickerActivitiy.class);
+        Intent intent = new Intent(GraphicActivity.this, DatePickerActivity.class);
         startActivity(intent);
         finish();
     }
@@ -107,10 +105,10 @@ public class GraphicActivity extends AppCompatActivity {
 
         //Ir a cada entrada, converter os minutos para decimais e por no grafico
         while (cursor.moveToNext()) {
-            Integer dataTemperatura = cursor.getInt(cursor.getColumnIndex("ValorMedicaoTemperatura"));
-            Integer dataHumidade = cursor.getInt(cursor.getColumnIndex("ValorMedicaoHumidade"));
+            Integer dataTemperatura = cursor.getInt(cursor.getColumnIndex("VALORMEDICAOTEMPERATURA"));
+            Integer dataHumidade = cursor.getInt(cursor.getColumnIndex("VALORMEDICAOHUMIDADE"));
 
-            String horaString = cursor.getString(cursor.getColumnIndex("HoraMedicao"));
+            String horaString = cursor.getString(cursor.getColumnIndex("HORAMEDICAO"));
             double horaForGraph = convertHourStringToDouble(horaString);
 
             if (helper == 0)

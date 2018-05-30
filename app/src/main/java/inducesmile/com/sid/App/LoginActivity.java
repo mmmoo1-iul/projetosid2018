@@ -10,15 +10,9 @@ import android.widget.EditText;
 
 import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.Reader;
-import java.net.URL;
-import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 
 import inducesmile.com.sid.Connection.ConnectionHandler;
@@ -26,11 +20,15 @@ import inducesmile.com.sid.Helper.UserLogin;
 import inducesmile.com.sid.R;
 
 //Esta aplicação serve como base para vos ajudar, precisam de completar os métodos To do de modo a que a aplicação faça o minimo que é suposto, podem adicionar novas features ou mudar a UI se acharem relevante.
+@SuppressWarnings("all")
 public class LoginActivity extends AppCompatActivity {
-    private String ip, port, username, password;
+    private String ip, port, username, password, stringResult;
+    private LoginActivity instance;
+    private AsyncTask task = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        stringResult = "START";
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
@@ -43,9 +41,15 @@ public class LoginActivity extends AppCompatActivity {
         ((EditText) (findViewById(R.id.password))).setText(password);
         ((EditText) (findViewById(R.id.ip))).setText(ip);
         ((EditText) (findViewById(R.id.port))).setText(port);
+
+        instance = this;
+        if (task != null)
+            task.cancel(true);
     }
 
     public void loginClick(View v) {
+        if (task != null)
+            task.cancel(true);
         username = ((EditText) (findViewById(R.id.username))).getText().toString();
         password = ((EditText) (findViewById(R.id.password))).getText().toString();
         ip = ((EditText) (findViewById(R.id.ip))).getText().toString();
@@ -59,25 +63,47 @@ public class LoginActivity extends AppCompatActivity {
         Ed.apply();
 
         new UserLogin(ip, port, username, password);
-        final String checkLogin = "http://" + ip + ":" + port + "/migration.php?";    //+"uid=" + username + "&pwd=" + password;
-        System.out.println("\n\n\n" + checkLogin + "\n\n\n");
+        final String checkLogin = "http://" + ip + ":" + port + "/sid/checkLogin.php";
 
-        AsyncTask task = new AsyncTask() {
+
+        task = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
-                HashMap<String, String> params = new HashMap<>();
-                params.put("uid", username);
-                params.put("pwd", password);
-                params.put("db","HumidadeTemperatura");
-                ConnectionHandler jParser = new ConnectionHandler();
-                JSONArray loginConfirmation = jParser.getJSONFromUrl(checkLogin, params);
-                return loginConfirmation;
+                if (!task.isCancelled() && !stringResult.equals("WORKED")) {
+                    AsyncTask otherTask = null;
+                    HashMap<String, String> params = new HashMap<>();
+                    params.put("uid", username);
+                    params.put("pwd", password);
+                    params.put("db", "HumidadeTemperatura");
+                    stringResult = ConnectionHandler.getStringFromURL(checkLogin, params);
+                    if (stringResult != null && stringResult.equals("WORKED")) {
+                        otherTask = new AsyncTask() {
+                            @Override
+                            protected Object doInBackground(Object[] objects) {
+                                String startMigration = "http://" + ip + ":" + port + "/sid/startMigration.php";
+                                HashMap<String, String> params = new HashMap<>();
+                                params.put("uid", username);
+                                params.put("pwd", password);
+                                try {
+                                    JSONArray array = new ConnectionHandler().getJSONFromUrl(startMigration, params);
+
+                                } catch (Exception e) {
+                                }
+                                return null;
+                            }
+                        }.execute();
+                        Intent i = new Intent(instance, MainActivity.class);
+                        startActivity(i);
+                        finish();
+                    } else {
+                        stringResult = "FAILED";
+                        task.cancel(true);
+                        task = null;
+                    }
+                }
+                return null;
             }
         }.execute();
-
-        Intent i = new Intent(this, MainActivity.class);
-        startActivity(i);
-        finish();
     }
 
 }

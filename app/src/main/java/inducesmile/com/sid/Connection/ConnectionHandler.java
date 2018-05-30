@@ -3,6 +3,8 @@ package inducesmile.com.sid.Connection;
 import android.util.Log;
 
 import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -53,4 +55,42 @@ public class ConnectionHandler {
         }
         return jObj;
     }
+
+    public static String getStringFromURL(String url, HashMap<String, String> params) {
+        try {
+            StringBuilder sb_params = new StringBuilder();
+            int i = 0;
+            for (String key : params.keySet()) {
+                if (i != 0) {
+                    sb_params.append("&");
+                }
+                sb_params.append(key).append("=").append(URLEncoder.encode(params.get(key), "UTF-8"));
+                i++;
+            }
+            URL urlObj = new URL(url);
+            HttpURLConnection conn = (HttpURLConnection) urlObj.openConnection();
+            conn.setDoOutput(true);
+            conn.setRequestMethod("POST");
+            conn.connect();
+            String paramsString = sb_params.toString();//TESTE
+            DataOutputStream wr = new DataOutputStream(conn.getOutputStream());
+            wr.writeBytes(paramsString);
+            wr.flush();
+            wr.close();
+            InputStream in = new BufferedInputStream(conn.getInputStream());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            StringBuilder result = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                Log.d("Line", line);
+                result.append(line);
+            }
+            System.out.println("Result generated from PHP file : " + result.toString());
+            return result.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 }

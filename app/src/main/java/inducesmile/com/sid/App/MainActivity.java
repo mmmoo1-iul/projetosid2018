@@ -14,8 +14,6 @@ import android.widget.TextView;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.w3c.dom.Text;
-
 import java.util.HashMap;
 
 import inducesmile.com.sid.Connection.ConnectionHandler;
@@ -23,7 +21,7 @@ import inducesmile.com.sid.DataBase.DataBaseHandler;
 import inducesmile.com.sid.DataBase.DataBaseReader;
 import inducesmile.com.sid.Helper.UserLogin;
 import inducesmile.com.sid.R;
-
+@SuppressWarnings("all")
 public class MainActivity extends AppCompatActivity {
 
     private static final String IP = UserLogin.getInstance().getIp();
@@ -31,15 +29,23 @@ public class MainActivity extends AppCompatActivity {
     private static final String username = UserLogin.getInstance().getUsername();
     private static final String password = UserLogin.getInstance().getPassword();
     DataBaseHandler db = new DataBaseHandler(this);
-    public static final String READ_HUMIDADE_TEMPERATURA = "http://" + IP + ":" + PORT + "/getHumidade_Temperatura.php";
-    public static final String READ_ALERTAS = "http://" + IP + ":" + PORT + "/getAlertas.php";
-    public static final String READ_Cultura = "http://" + IP + ":" + PORT + "/getCultura.php";
+    public static final String READ_HUMIDADE_TEMPERATURA = "http://" + IP + ":" + PORT + "/sid/getGraphHumTemp.php";
+    public static final String READ_ALERTAS = "http://" + IP + ":" + PORT + "/sid/getAlertas.php";
+    public static final String READ_Cultura = "http://" + IP + ":" + PORT + "/sid/getCultura.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         db.dbClear();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
+        Intent i = new Intent(this, LoginActivity.class);
+        startActivity(i);
+        finish();
     }
 
     public void drawGraph(View v) {
@@ -73,7 +79,7 @@ public class MainActivity extends AppCompatActivity {
 
         Cursor cursor = dbReader.ReadHumidadeTemperatura(null);
         int totalMedicoes = cursor.getCount();
-        TextView text = findViewById(R.id.numeroMedicoesInt);
+        TextView text = (TextView) findViewById(R.id.numeroMedicoesInt);
         text.setText(Integer.toString(totalMedicoes));
 
     }
@@ -85,7 +91,7 @@ public class MainActivity extends AppCompatActivity {
 
         Cursor cursor = dbReader.readAlertas();
         int totalAlertas = cursor.getCount();
-        TextView text = findViewById(R.id.numeroAlertasInt);
+        TextView text = (TextView) findViewById(R.id.numeroAlertasInt);
         text.setText(Integer.toString(totalAlertas));
 
     }
@@ -95,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         //To do?
         DataBaseReader dbReader = new DataBaseReader(db);
 
-        TextView nomeCultura_tv = findViewById(R.id.nomeCultura_tv);
+        TextView nomeCultura_tv = (TextView) findViewById(R.id.nomeCultura_tv);
         Cursor cursor = dbReader.readCultura();
         String nomeCultura = null;
         while (cursor.moveToNext()) {
@@ -122,20 +128,19 @@ public class MainActivity extends AppCompatActivity {
             HashMap<String, String> params = new HashMap<>();
             params.put("username", username);
             params.put("password", password);
-            params.put("idCultura", idCultura);
+            params.put("idCult", idCultura);
             ConnectionHandler jParser = new ConnectionHandler();
             JSONArray jsonHumidadeTemperatura = jParser.getJSONFromUrl(READ_HUMIDADE_TEMPERATURA, params);
             db.dbClear();
             if (jsonHumidadeTemperatura != null) {
                 for (int i = 0; i < jsonHumidadeTemperatura.length(); i++) {
                     JSONObject c = jsonHumidadeTemperatura.getJSONObject(i);
-                    int idMedicao = c.getInt("IDMedicao");
-                    String horaMedicao = c.getString("HoraMedicao");
-                    double valorMedicaoTemperatura = c.getDouble("ValorMedicaoTemperatura");
-                    double valorMedicaoHumidade = c.getDouble("ValorMedicaoHumidade");
-                    String dataMedicao = c.getString("DataMedicao");
-                    int idCultura2 = c.getInt("IDCultura");
-                    db.insert_Humidade_Temperatura(idMedicao, idCultura2, horaMedicao, valorMedicaoTemperatura, valorMedicaoHumidade, dataMedicao);
+                    int idMedicao = c.getInt("IDMEDICAO");
+                    String horaMedicao = c.getString("HORAMEDICAO");
+                    double valorMedicaoTemperatura = c.getDouble("VALORMEDICAOTEMPERATURA");
+                    double valorMedicaoHumidade = c.getDouble("VALORMEDICAOHUMIDADE");
+                    String dataMedicao = c.getString("DATAMEDICAO");
+                    db.insert_Humidade_Temperatura(idMedicao, horaMedicao, valorMedicaoTemperatura, valorMedicaoHumidade, dataMedicao);
                 }
             }
 
