@@ -1,8 +1,10 @@
 package inducesmile.com.sid.App;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -32,7 +34,6 @@ public class MainActivity extends AppCompatActivity {
     private static final String password = UserLogin.getInstance().getPassword();
     DataBaseHandler db = new DataBaseHandler(this);
     public static final String READ_HUMIDADE_TEMPERATURA = "http://" + IP + ":" + PORT + "/sid/getGraphHumTemp.php";
-    public static final String READ_ALERTAS = "http://" + IP + ":" + PORT + "/sid/getAlertas.php";
     public static final String READ_Cultura = "http://" + IP + ":" + PORT + "/sid/getCultura.php";
 
     @Override
@@ -63,14 +64,16 @@ public class MainActivity extends AppCompatActivity {
 
     public void refreshDB(View v) {
         EditText idCultura = ((EditText) (findViewById(R.id.idCultura)));
-        System.out.println(idCultura.getText().toString());
-        if (idCultura.getText() != null) {
+        if (idCultura.getText() != null && idCultura.getText().length() > 0) {
             writeToDB(idCultura.getText().toString());
             idCultura.onEditorAction(EditorInfo.IME_ACTION_DONE);
             updateNomeCultura();
             updateNumeroMedicoes();
             updateNumeroAlertas();
+        } else {
+            ((TextView) (findViewById(R.id.nomeCultura_tv))).setText("");
         }
+
     }
 
     public void updateNumeroMedicoes() {
@@ -117,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
             nomeCultura_tv.setText("Cultura Invalida!");
             nomeCultura_tv.setTextColor(Color.RED);
         }
-
         nomeCultura_tv.setVisibility(View.VISIBLE);
     }
 
@@ -125,54 +127,78 @@ public class MainActivity extends AppCompatActivity {
 
     public void writeToDB(String idCultura) {
         try {
+            db.dbClear();
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
             StrictMode.setThreadPolicy(policy);
             HashMap<String, String> params = new HashMap<>();
-            params.put("usd", username);
+            params.put("uid", username);
             params.put("pwd", password);
             params.put("idCult", idCultura);
             ConnectionHandler jParser = new ConnectionHandler();
-            JSONArray jsonHumidadeTemperatura = jParser.getJSONFromUrl(READ_HUMIDADE_TEMPERATURA, params);
-            db.dbClear();
-            if (jsonHumidadeTemperatura != null) {
-                for (int i = 0; i < jsonHumidadeTemperatura.length(); i++) {
-                    JSONObject c = jsonHumidadeTemperatura.getJSONObject(i);
-                    int idMedicao = c.getInt("IDMEDICAO");
-                    String horaMedicao = c.getString("HORAMEDICAO");
-                    double valorMedicaoTemperatura = c.getDouble("VALORMEDICAOTEMPERATURA");
-                    double valorMedicaoHumidade = c.getDouble("VALORMEDICAOHUMIDADE");
-                    String dataMedicao = c.getString("DATAMEDICAO");
-                    db.insert_Humidade_Temperatura(idMedicao, horaMedicao, valorMedicaoTemperatura, valorMedicaoHumidade, dataMedicao);
-                }
-            }
-
-            JSONArray jsonAlertas = jParser.getJSONFromUrl(READ_ALERTAS, params);
-            if (jsonAlertas != null) {
-                for (int i = 0; i < jsonAlertas.length(); i++) {
-                    JSONObject c = jsonAlertas.getJSONObject(i);
-                    int IDAlerta = c.getInt("IDAlerta");
-                    String dataMedicao = c.getString("DataMedicao");
-                    double valorMedicao = c.getDouble("ValorMedicao");
-                    String horaMedicao = c.getString("HoraMedicao");
-                    String nomeVariavel = c.getString("NomeVariavel");
-                    String alerta = c.getString("Alerta");
-                    db.insert_Alertas(IDAlerta, dataMedicao, valorMedicao, horaMedicao, nomeVariavel, alerta);
-                }
-
-            }
 
             JSONArray jsonCultura = jParser.getJSONFromUrl(READ_Cultura, params);
+            double limInfTemp = 0, limSupTemp = 0, limInfHum = 0, limSupHum = 0;
             if (jsonCultura != null) {
                 for (int i = 0; i < jsonCultura.length(); i++) {
                     JSONObject c = jsonCultura.getJSONObject(i);
-                    String nomeCultura = c.getString("NomeCultura");
+                    String nomeCultura = c.getString("NOMECULTURA");
                     db.insert_Cultura(Integer.parseInt(idCultura), nomeCultura);
+
+                    limInfTemp = c.getDouble("LIMITEINFERIORTEMPERATURA");
+                    limSupTemp = c.getDouble("LIMITESUPERIORTEMPERATURA");
+                    limInfHum = c.getDouble("LIMITEINFERIORHUMIDADE");
+                    limSupHum = c.getDouble("LIMITESUPERIORHUMIDADE");
+                    SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
+                    SharedPreferences.Editor Ed = sp.edit();
+                    Ed.putFloat("LIMINFTEMP", (float) limInfTemp);
+                    Ed.putFloat("LIMSUPTEMP", (float) limSupTemp);
+                    Ed.putFloat("LIMINFHUM", (float) limInfHum);
+                    Ed.putFloat("LIMSUPHUM", (float) limSupHum);
+                    Ed.apply();
                 }
-
+                JSONArray jsonHumidadeTemperatura = jParser.getJSONFromUrl(READ_HUMIDADE_TEMPERATURA, params);
+                if (jsonHumidadeTemperatura != null) {
+                    for (int i = 0; i < jsonHumidadeTemperatura.length(); i++) {
+                        JSONObject c = jsonHumidadeTemperatura.getJSONObject(i);
+                        int idMedicao = c.getInt("IDMEDICAO");
+                        String horaMedicao = c.getString("HORAMEDICAO");
+                        double valorMedicaoTemperatura = c.getDouble("VALORMEDICAOTEMPERATURA");
+                        double valorMedicaoHumidade = c.getDouble("VALORMEDICAOHUMIDADE");
+                        String dataMedicao = c.getString("DATAMEDICAO");
+                        db.insert_Humidade_Temperatura(idMedicao, horaMedicao, valorMedicaoTemperatura, valorMedicaoHumidade, dataMedicao);
+                        validate(limInfTemp, limSupTemp, horaMedicao, valorMedicaoTemperatura, valorMedicaoTemperatura, dataMedicao, "Temperatura");
+                        validate(limInfHum, limSupHum, horaMedicao, valorMedicaoTemperatura, valorMedicaoHumidade, dataMedicao, "Humidade");
+                    }
+                }
             }
-
         } catch (JSONException e) {
             e.printStackTrace();
+        }
+    }
+
+    private void validate(double limInfHum, double limSupHum, String horaMedicao, double valorMedicaoTemperatura, double valorMedicaoHumidade, String dataMedicao, String variable) {
+        if (valorMedicaoHumidade - limInfHum >= 2) {
+            double valorMedicao = valorMedicaoHumidade;
+            String nomeVariavel = variable;
+            String alerta = "Próx. Lim. Inf.";
+            db.insert_Alertas(dataMedicao, valorMedicao, horaMedicao, nomeVariavel, alerta);
+        } else if (valorMedicaoHumidade <= limInfHum) {
+            double valorMedicao = valorMedicaoTemperatura;
+            String nomeVariavel = variable;
+            String alerta = "Lim. Inf. Ult.";
+            db.insert_Alertas(dataMedicao, valorMedicao, horaMedicao, nomeVariavel, alerta);
+        } else {
+            if (limSupHum - valorMedicaoHumidade <= 2) {
+                double valorMedicao = valorMedicaoHumidade;
+                String nomeVariavel = variable;
+                String alerta = "Próx. Lim. Sup.";
+                db.insert_Alertas(dataMedicao, valorMedicao, horaMedicao, nomeVariavel, alerta);
+            } else if (valorMedicaoHumidade >= limSupHum) {
+                double valorMedicao = valorMedicaoTemperatura;
+                String nomeVariavel = variable;
+                String alerta = "Lim. Sup. Ult.";
+                db.insert_Alertas(dataMedicao, valorMedicao, horaMedicao, nomeVariavel, alerta);
+            }
         }
     }
 

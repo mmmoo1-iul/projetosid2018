@@ -47,7 +47,7 @@ public class DataBaseConfig {
 
     protected static final String SQL_CREATE_ALERTAS=
             "CREATE TABLE " + Alertas.TABLE_NAME +
-                    " (" + Alertas.COLUMN_NAME_IDALERTA + " INTEGER PRIMARY KEY," +
+                    " (" + Alertas.COLUMN_NAME_IDALERTA + " INTEGER PRIMARY KEY AUTOINCREMENT," +
                     Alertas.COLUMN_NAME_DATAMEDICAO + " TIME," +
                     Alertas.COLUMN_NAME_VALORMEDICAO + " INTEGER," +
                     Alertas.COLUMN_NAME_HORAMEDICAO + " TIME," +

@@ -1,6 +1,7 @@
 package inducesmile.com.sid.App;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -22,7 +23,7 @@ public class DatePickerActivity extends AppCompatActivity {
         int[] yearMonthDay = new int[3];
 
         yearMonthDay[0] = datePicker.getYear();
-        yearMonthDay[1] = datePicker.getMonth() + 1;
+        yearMonthDay[1] = (datePicker.getMonth() + 1);
         yearMonthDay[2] = datePicker.getDayOfMonth();
 
         Intent intent = new Intent(this, GraphicActivity.class);

@@ -35,13 +35,10 @@ public class GraphicActivity extends AppCompatActivity {
     DataBaseHandler db = new DataBaseHandler(this);
     GraphView graph;
     DataBaseReader reader;
-    int year;
-    int month;
-    int day;
-    String yearString;
-    String monthString;
-    String dayString;
+    String yearString, monthString, dayString;
     GraphicActivity instance;
+    Cursor cursor;
+    boolean dateChanged = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -49,16 +46,15 @@ public class GraphicActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graphic);
         graph = (GraphView) findViewById(R.id.graph);
-
         if (getIntent().hasExtra("date")) {
             int[] yearMonthDay = getIntent().getIntArrayExtra("date");
-            year = yearMonthDay[0];
-            month = yearMonthDay[1];
-            day = yearMonthDay[2];
+            yearString = "" + yearMonthDay[0];
+            monthString = "" + yearMonthDay[1];
+            dayString = "" + yearMonthDay[2];
         } else {
-            year = Calendar.getInstance().get(Calendar.YEAR);
-            month = Calendar.getInstance().get(Calendar.MONTH) + 1;
-            day = Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+            yearString = "" + Calendar.getInstance().get(Calendar.YEAR);
+            monthString = "" + (Calendar.getInstance().get(Calendar.MONTH) + 1);
+            dayString = "" + Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
         }
         dateToString();
         transformDateString();
@@ -67,18 +63,12 @@ public class GraphicActivity extends AppCompatActivity {
 
 
     private void dateToString() {
-        yearString = Integer.toString(year);
-        if (month < 10) {
-            monthString = "0" + Integer.toString(month);
-        } else {
-            monthString = Integer.toString(month);
+        if (Integer.parseInt(monthString) < 10) {
+            monthString = "0" + monthString;
         }
-        if (day < 10) {
-            dayString = "0" + Integer.toString(day);
-        } else {
-            dayString = Integer.toString(day);
+        if (Integer.parseInt(dayString) < 10) {
+            dayString = "0" + dayString;
         }
-
     }
 
     private void transformDateString() {
@@ -86,8 +76,8 @@ public class GraphicActivity extends AppCompatActivity {
         text.setText(yearString + "-" + monthString + "-" + dayString);
     }
 
+
     public void getCursor() {
-        //To do, ir à base de dados buscar o cursor do dia selecionado.
         db.dbClear();
         AsyncTask otherTask = new AsyncTask() {
             @Override
@@ -115,18 +105,17 @@ public class GraphicActivity extends AppCompatActivity {
                         hora = obj.getString("HORAMEDICAO");
                         try {
                             db.insert_Humidade_Temperatura(id, hora, valorTemp, valorHum, data);
-                        } catch (SQLiteConstraintException e){
+                        } catch (SQLiteConstraintException e) {
                         }
                     }
                     reader = new DataBaseReader(db);
-                    Cursor cursor = reader.ReadHumidadeTemperatura("DataMedicao='" + yearString + "-" + monthString + "-" + dayString + "'");
+                    cursor = reader.ReadHumidadeTemperatura("DataMedicao='" + yearString + "-" + monthString + "-" + dayString + "'");
                     drawGraph(cursor);
                 } catch (Exception e) {
                 }
                 return null;
             }
         }.execute();
-
     }
 
 
@@ -151,7 +140,6 @@ public class GraphicActivity extends AppCompatActivity {
         double last_value = 0.0;
 
         DataPoint[] datapointsTemperatura = new DataPoint[cursor.getCount()];
-        Log.d("TotalTemperatura",Integer.toString(datapointsTemperatura.length));
         DataPoint[] datapointsHumidade = new DataPoint[cursor.getCount()];
 
         //Ir a cada entrada, converter os minutos para decimais e por no grafico
