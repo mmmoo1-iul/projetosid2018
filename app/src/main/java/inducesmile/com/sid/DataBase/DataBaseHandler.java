@@ -22,6 +22,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
     public DataBaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
+
     @Override
     public void onCreate(SQLiteDatabase sqLiteDatabase) {
         sqLiteDatabase.execSQL(config.SQL_CREATE_HUMIDADE_TEMPERATURA);
@@ -40,41 +41,41 @@ public class DataBaseHandler extends SQLiteOpenHelper {
         onUpgrade(db, oldVersion, newVersion);
     }
 
-    public void dbClear(){
+    public void dbClear() {
         getWritableDatabase().execSQL(config.SQL_DELETE_HUMIDADE_TEMPERATURA);
         getWritableDatabase().execSQL(config.SQL_DELETE_ALERTAS);
         getWritableDatabase().execSQL(config.SQL_DELETE_CULTURA);
         onCreate(getWritableDatabase());
     }
 
-    public void insert_Humidade_Temperatura(int idMedicao,String horaMedicao,double valorMedicaoTemperatura,double valorMedicaoHumidade,String dataMedicao){
+    public void insert_Humidade_Temperatura(int idMedicao, String horaMedicao, double valorMedicaoTemperatura, double valorMedicaoHumidade, String dataMedicao) {
         ContentValues values = new ContentValues();
-        values.put(DataBaseConfig.HumidadeTemperatura.COLUMN_NAME_IDMEDICAO,idMedicao);
-        values.put(DataBaseConfig.HumidadeTemperatura.COLUMN_NAME_HORAMEDICAO,horaMedicao);
-        values.put(DataBaseConfig.HumidadeTemperatura.COLUMN_NAME_VALORMEDICAOTEMPERATURA,valorMedicaoTemperatura);
-        values.put(DataBaseConfig.HumidadeTemperatura.COLUMN_NAME_VALORMEDICAOHUMIDADE,valorMedicaoHumidade);
-        values.put(DataBaseConfig.HumidadeTemperatura.COLUMN_NAME_DATAMEDICAO,dataMedicao);
+        values.put(DataBaseConfig.HumidadeTemperatura.COLUMN_NAME_IDMEDICAO, idMedicao);
+        values.put(DataBaseConfig.HumidadeTemperatura.COLUMN_NAME_HORAMEDICAO, horaMedicao);
+        values.put(DataBaseConfig.HumidadeTemperatura.COLUMN_NAME_VALORMEDICAOTEMPERATURA, valorMedicaoTemperatura);
+        values.put(DataBaseConfig.HumidadeTemperatura.COLUMN_NAME_VALORMEDICAOHUMIDADE, valorMedicaoHumidade);
+        values.put(DataBaseConfig.HumidadeTemperatura.COLUMN_NAME_DATAMEDICAO, dataMedicao);
 
-        getWritableDatabase().insert(DataBaseConfig.HumidadeTemperatura.TABLE_NAME,null,values);
+        getWritableDatabase().insert(DataBaseConfig.HumidadeTemperatura.TABLE_NAME, null, values);
     }
 
-    public void insert_Alertas(String dataMedicao,double valorMedicao,String horaMedicao,String nomeVariavel,String alerta){
+    public void insert_Alertas(String dataMedicao, double valorMedicao, String horaMedicao, String nomeVariavel, String alerta) {
         ContentValues values = new ContentValues();
-        values.put(DataBaseConfig.Alertas.COLUMN_NAME_DATAMEDICAO,dataMedicao);
-        values.put(DataBaseConfig.Alertas.COLUMN_NAME_VALORMEDICAO,valorMedicao);
-        values.put(DataBaseConfig.Alertas.COLUMN_NAME_HORAMEDICAO,horaMedicao);
-        values.put(DataBaseConfig.Alertas.COLUMN_NAME_NOMEVARIAVEL,nomeVariavel);
-        values.put(DataBaseConfig.Alertas.COLUMN_NAME_ALERTAS,alerta);
-        getWritableDatabase().insert(DataBaseConfig.Alertas.TABLE_NAME,null,values);
+        values.put(DataBaseConfig.Alertas.COLUMN_NAME_DATAMEDICAO, dataMedicao);
+        values.put(DataBaseConfig.Alertas.COLUMN_NAME_VALORMEDICAO, valorMedicao);
+        values.put(DataBaseConfig.Alertas.COLUMN_NAME_HORAMEDICAO, horaMedicao);
+        values.put(DataBaseConfig.Alertas.COLUMN_NAME_NOMEVARIAVEL, nomeVariavel);
+        values.put(DataBaseConfig.Alertas.COLUMN_NAME_ALERTAS, alerta);
+        getWritableDatabase().insertWithOnConflict(DataBaseConfig.Alertas.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
 
 
     }
 
-    public void insert_Cultura(int idCultura,String nomeCultura){
+    public void insert_Cultura(int idCultura, String nomeCultura) {
         ContentValues values = new ContentValues();
-        values.put(DataBaseConfig.Cultura.COLUMN_NAME_IDCULTURA,idCultura);
-        values.put(DataBaseConfig.Cultura.COLUMN_NAME_NOMECULTURA,nomeCultura);
-        getWritableDatabase().insert(DataBaseConfig.Cultura.TABLE_NAME,null,values);
+        values.put(DataBaseConfig.Cultura.COLUMN_NAME_IDCULTURA, idCultura);
+        values.put(DataBaseConfig.Cultura.COLUMN_NAME_NOMECULTURA, nomeCultura);
+        getWritableDatabase().insert(DataBaseConfig.Cultura.TABLE_NAME, null, values);
     }
 
 }

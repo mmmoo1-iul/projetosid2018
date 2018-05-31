@@ -15,7 +15,7 @@ public class DataBaseReader {
 
     SQLiteDatabase db;
 
-    public DataBaseReader(DataBaseHandler dbHandler){
+    public DataBaseReader(DataBaseHandler dbHandler) {
         db = dbHandler.getReadableDatabase();
 
     }
@@ -23,17 +23,17 @@ public class DataBaseReader {
     // https://stackoverflow.com/questions/10600670/sqlitedatabase-query-method
 
 
-    public Cursor ReadHumidadeTemperatura(String data){
+    public Cursor ReadHumidadeTemperatura(String data) {
 
         //To Do
-       if (data!=null){
-           Log.d("dataString",data);
-       }
+        if (data != null) {
+            Log.d("dataString", data);
+        }
 
         Cursor cursor = db.query(
                 DataBaseConfig.HumidadeTemperatura.TABLE_NAME,   // Nome da tabela
                 null,
-                        data,
+                data,
                 null,
                 null,
                 null,
@@ -42,22 +42,24 @@ public class DataBaseReader {
         return cursor;
     }
 
-    public Cursor readAlertas(){
+    public Cursor readAlertas() {
 
         //To do
-        Cursor cursor = db.query(
+        Cursor cursor = db.query(true,
                 DataBaseConfig.Alertas.TABLE_NAME,   // Nome da tabela
                 null,
                 null,
                 null,
                 null,
                 null,
+                null,
                 null
         );
+        Log.d("READALERTAS", cursor.getCount() + "");
         return cursor;
     }
 
-    public Cursor readCultura(){
+    public Cursor readCultura() {
         //To do
         Cursor cursor = db.query(
                 DataBaseConfig.Cultura.TABLE_NAME,   // Nome da tabela
@@ -70,7 +72,6 @@ public class DataBaseReader {
         );
         return cursor;
     }
-
 
 
 }

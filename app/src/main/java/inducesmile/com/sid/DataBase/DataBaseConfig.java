@@ -19,20 +19,19 @@ public class DataBaseConfig {
 
     }
 
-    public static class Alertas implements BaseColumns{
-        public static final String TABLE_NAME="Alertas";
-        public static final String COLUMN_NAME_IDALERTA="IDAlerta";
-        public static final String COLUMN_NAME_DATAMEDICAO="DataMedicao";
-        public static final String COLUMN_NAME_VALORMEDICAO="ValorMedicao";
-        public static final String COLUMN_NAME_HORAMEDICAO="HoraMedicao";
-        public static final String COLUMN_NAME_NOMEVARIAVEL="NomeVariavel";
-        public static final String COLUMN_NAME_ALERTAS="Alertas";
+    public static class Alertas implements BaseColumns {
+        public static final String TABLE_NAME = "Alertas";
+        public static final String COLUMN_NAME_DATAMEDICAO = "DataMedicao";
+        public static final String COLUMN_NAME_VALORMEDICAO = "ValorMedicao";
+        public static final String COLUMN_NAME_HORAMEDICAO = "HoraMedicao";
+        public static final String COLUMN_NAME_NOMEVARIAVEL = "NomeVariavel";
+        public static final String COLUMN_NAME_ALERTAS = "Alertas";
     }
 
-    public static class Cultura implements BaseColumns{
-        public static final String TABLE_NAME="Cultura";
-        public static final String COLUMN_NAME_IDCULTURA="IDCultura";
-        public static final String COLUMN_NAME_NOMECULTURA="NomeCultura";
+    public static class Cultura implements BaseColumns {
+        public static final String TABLE_NAME = "Cultura";
+        public static final String COLUMN_NAME_IDCULTURA = "IDCultura";
+        public static final String COLUMN_NAME_NOMECULTURA = "NomeCultura";
     }
 
 
@@ -45,17 +44,19 @@ public class DataBaseConfig {
                     HumidadeTemperatura.COLUMN_NAME_VALORMEDICAOHUMIDADE + " INTEGER," +
                     HumidadeTemperatura.COLUMN_NAME_DATAMEDICAO + " TIME )";
 
-    protected static final String SQL_CREATE_ALERTAS=
+    protected static final String SQL_CREATE_ALERTAS =
             "CREATE TABLE " + Alertas.TABLE_NAME +
-                    " (" + Alertas.COLUMN_NAME_IDALERTA + " INTEGER PRIMARY KEY AUTOINCREMENT," +
-                    Alertas.COLUMN_NAME_DATAMEDICAO + " TIME," +
+                    " (" + Alertas.COLUMN_NAME_DATAMEDICAO + " TIME," +
                     Alertas.COLUMN_NAME_VALORMEDICAO + " INTEGER," +
                     Alertas.COLUMN_NAME_HORAMEDICAO + " TIME," +
-                    Alertas.COLUMN_NAME_NOMEVARIAVEL + " TEXT, "+
-                    Alertas.COLUMN_NAME_ALERTAS + " TEXT )";
+                    Alertas.COLUMN_NAME_NOMEVARIAVEL + " TEXT, " +
+                    Alertas.COLUMN_NAME_ALERTAS + " TEXT, " +
+                    "PRIMARY KEY (" + Alertas.COLUMN_NAME_DATAMEDICAO +
+                    ", " + Alertas.COLUMN_NAME_VALORMEDICAO + ","
+                    + Alertas.COLUMN_NAME_NOMEVARIAVEL + ")" + ")";
 
 
-    protected static final String SQL_CREATE_CULTURA=
+    protected static final String SQL_CREATE_CULTURA =
             "CREATE TABLE " + Cultura.TABLE_NAME +
                     " (" + Cultura.COLUMN_NAME_IDCULTURA + " INTEGER PRIMARY KEY," +
                     Cultura.COLUMN_NAME_NOMECULTURA + " TEXT )";
@@ -64,10 +65,10 @@ public class DataBaseConfig {
             "DROP TABLE IF EXISTS " + HumidadeTemperatura.TABLE_NAME;
 
 
-    protected static final String SQL_DELETE_ALERTAS=
+    protected static final String SQL_DELETE_ALERTAS =
             "DROP TABLE IF EXISTS " + Alertas.TABLE_NAME;
 
 
-    protected static final String SQL_DELETE_CULTURA=
+    protected static final String SQL_DELETE_CULTURA =
             "DROP TABLE IF EXISTS " + Cultura.TABLE_NAME;
 }

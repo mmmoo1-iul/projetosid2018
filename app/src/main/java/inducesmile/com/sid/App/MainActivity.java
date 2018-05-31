@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -17,6 +18,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 
 import inducesmile.com.sid.Connection.ConnectionHandler;
@@ -73,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
         } else {
             ((TextView) (findViewById(R.id.nomeCultura_tv))).setText("");
         }
-
     }
 
     public void updateNumeroMedicoes() {
@@ -139,23 +142,26 @@ public class MainActivity extends AppCompatActivity {
             JSONArray jsonCultura = jParser.getJSONFromUrl(READ_Cultura, params);
             double limInfTemp = 0, limSupTemp = 0, limInfHum = 0, limSupHum = 0;
             if (jsonCultura != null) {
-                for (int i = 0; i < jsonCultura.length(); i++) {
-                    JSONObject c = jsonCultura.getJSONObject(i);
-                    String nomeCultura = c.getString("NOMECULTURA");
-                    db.insert_Cultura(Integer.parseInt(idCultura), nomeCultura);
 
-                    limInfTemp = c.getDouble("LIMITEINFERIORTEMPERATURA");
-                    limSupTemp = c.getDouble("LIMITESUPERIORTEMPERATURA");
-                    limInfHum = c.getDouble("LIMITEINFERIORHUMIDADE");
-                    limSupHum = c.getDouble("LIMITESUPERIORHUMIDADE");
-                    SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
-                    SharedPreferences.Editor Ed = sp.edit();
-                    Ed.putFloat("LIMINFTEMP", (float) limInfTemp);
-                    Ed.putFloat("LIMSUPTEMP", (float) limSupTemp);
-                    Ed.putFloat("LIMINFHUM", (float) limInfHum);
-                    Ed.putFloat("LIMSUPHUM", (float) limSupHum);
-                    Ed.apply();
-                }
+                JSONObject obj = jsonCultura.getJSONObject(0);
+                String nomeCultura = obj.getString("NOMECULTURA");
+                db.insert_Cultura(Integer.parseInt(idCultura), nomeCultura);
+
+                limInfTemp = obj.getDouble("LIMITEINFERIORTEMPERATURA");
+                limSupTemp = obj.getDouble("LIMITESUPERIORTEMPERATURA");
+                limInfHum = obj.getDouble("LIMITEINFERIORHUMIDADE");
+                limSupHum = obj.getDouble("LIMITESUPERIORHUMIDADE");
+                /*SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
+                SharedPreferences.Editor Ed = sp.edit();
+                Ed.putFloat("LIMINFTEMP", (float) limInfTemp);
+                Ed.putFloat("LIMSUPTEMP", (float) limSupTemp);
+                Ed.putFloat("LIMINFHUM", (float) limInfHum);
+                Ed.putFloat("LIMSUPHUM", (float) limSupHum);
+                Ed.apply();*/
+                Date currentTime = new Date();
+                SimpleDateFormat sdf = new SimpleDateFormat("DD-MM-YYYY");
+                String date = sdf.format(currentTime);
+                Log.d("DD-MM-YYYY", date);
                 JSONArray jsonHumidadeTemperatura = jParser.getJSONFromUrl(READ_HUMIDADE_TEMPERATURA, params);
                 if (jsonHumidadeTemperatura != null) {
                     for (int i = 0; i < jsonHumidadeTemperatura.length(); i++) {
@@ -166,8 +172,8 @@ public class MainActivity extends AppCompatActivity {
                         double valorMedicaoHumidade = c.getDouble("VALORMEDICAOHUMIDADE");
                         String dataMedicao = c.getString("DATAMEDICAO");
                         db.insert_Humidade_Temperatura(idMedicao, horaMedicao, valorMedicaoTemperatura, valorMedicaoHumidade, dataMedicao);
-                        validate(limInfTemp, limSupTemp, horaMedicao, valorMedicaoTemperatura, valorMedicaoTemperatura, dataMedicao, "Temperatura");
-                        validate(limInfHum, limSupHum, horaMedicao, valorMedicaoTemperatura, valorMedicaoHumidade, dataMedicao, "Humidade");
+                        validate(limInfTemp, limSupTemp, horaMedicao, valorMedicaoTemperatura, dataMedicao, "Temperatura");
+                        validate(limInfHum, limSupHum, horaMedicao, valorMedicaoHumidade, dataMedicao, "Humidade");
                     }
                 }
             }
@@ -176,29 +182,23 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void validate(double limInfHum, double limSupHum, String horaMedicao, double valorMedicaoTemperatura, double valorMedicaoHumidade, String dataMedicao, String variable) {
-        if (valorMedicaoHumidade - limInfHum >= 2) {
-            double valorMedicao = valorMedicaoHumidade;
-            String nomeVariavel = variable;
-            String alerta = "Próx. Lim. Inf.";
-            db.insert_Alertas(dataMedicao, valorMedicao, horaMedicao, nomeVariavel, alerta);
-        } else if (valorMedicaoHumidade <= limInfHum) {
-            double valorMedicao = valorMedicaoTemperatura;
-            String nomeVariavel = variable;
-            String alerta = "Lim. Inf. Ult.";
-            db.insert_Alertas(dataMedicao, valorMedicao, horaMedicao, nomeVariavel, alerta);
+    private void validate(double limInf, double limSup, String horaMedicao, double valorMedicao, String dataMedicao, String variable) {
+        String alerta = "";
+        if (valorMedicao - limInf <= 1) {
+            alerta = "Próx. Lim. Inf.";
         } else {
-            if (limSupHum - valorMedicaoHumidade <= 2) {
-                double valorMedicao = valorMedicaoHumidade;
-                String nomeVariavel = variable;
-                String alerta = "Próx. Lim. Sup.";
-                db.insert_Alertas(dataMedicao, valorMedicao, horaMedicao, nomeVariavel, alerta);
-            } else if (valorMedicaoHumidade >= limSupHum) {
-                double valorMedicao = valorMedicaoTemperatura;
-                String nomeVariavel = variable;
-                String alerta = "Lim. Sup. Ult.";
-                db.insert_Alertas(dataMedicao, valorMedicao, horaMedicao, nomeVariavel, alerta);
+            if (limSup - valorMedicao <= 1) {
+                alerta = "Próx. Lim. Sup.";
             }
+        }
+        if (valorMedicao <= limInf) {
+            alerta = "Lim. Inf. Ult.";
+        }
+        if (valorMedicao >= limSup) {
+            alerta = "Lim. Sup. Ult.";
+        }
+        if (alerta != "") {
+            db.insert_Alertas(dataMedicao, valorMedicao, horaMedicao, variable, alerta);
         }
     }
 
