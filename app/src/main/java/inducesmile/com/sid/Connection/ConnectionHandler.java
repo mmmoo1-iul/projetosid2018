@@ -49,7 +49,9 @@ public class ConnectionHandler {
                 result.append(line);
             }
             conn.disconnect();
-            jObj = new JSONArray(result.toString());
+            if (!result.toString().startsWith("<br")) {
+                jObj = new JSONArray(result.toString());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }

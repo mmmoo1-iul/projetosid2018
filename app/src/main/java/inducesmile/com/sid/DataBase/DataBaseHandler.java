@@ -48,6 +48,22 @@ public class DataBaseHandler extends SQLiteOpenHelper {
         onCreate(getWritableDatabase());
     }
 
+    public void clearTable(String tablename) {
+        SQLiteDatabase sqLiteDatabase = getWritableDatabase();
+        if (tablename.equals("ALERTAS")) {
+            sqLiteDatabase.execSQL(config.SQL_DELETE_ALERTAS);
+            sqLiteDatabase.execSQL(config.SQL_CREATE_ALERTAS);
+        }
+        if (tablename.equals("CULTURA")) {
+            getWritableDatabase().execSQL(config.SQL_CREATE_CULTURA);
+            sqLiteDatabase.execSQL(config.SQL_CREATE_CULTURA);
+        }
+        if (tablename.equals("HUMIDADETEMPERATURA")) {
+            getWritableDatabase().execSQL(config.SQL_DELETE_HUMIDADE_TEMPERATURA);
+            sqLiteDatabase.execSQL(config.SQL_CREATE_HUMIDADE_TEMPERATURA);
+        }
+    }
+
     public void insert_Humidade_Temperatura(int idMedicao, String horaMedicao, double valorMedicaoTemperatura, double valorMedicaoHumidade, String dataMedicao) {
         ContentValues values = new ContentValues();
         values.put(DataBaseConfig.HumidadeTemperatura.COLUMN_NAME_IDMEDICAO, idMedicao);

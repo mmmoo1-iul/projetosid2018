@@ -72,6 +72,4 @@ public class DataBaseReader {
         );
         return cursor;
     }
-
-
 }

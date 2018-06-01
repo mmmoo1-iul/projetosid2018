@@ -1,6 +1,8 @@
 package inducesmile.com.sid.App;
 
+import android.content.Intent;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.widget.TableLayout;
@@ -11,9 +13,11 @@ import inducesmile.com.sid.DataBase.DataBaseHandler;
 import inducesmile.com.sid.DataBase.DataBaseReader;
 import inducesmile.com.sid.R;
 
+@SuppressWarnings("all")
 public class AlertasActivity extends AppCompatActivity {
 
     DataBaseHandler db = new DataBaseHandler(this);
+    private AlertasActivity instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +27,7 @@ public class AlertasActivity extends AppCompatActivity {
         Cursor culturaCursor = getCulturaCursor();
         updateNomeCultura(culturaCursor);
         listAlertas(alertasCursor);
+        instance = this;
     }
 
     public Cursor getCulturaCursor() {
@@ -35,6 +40,7 @@ public class AlertasActivity extends AppCompatActivity {
         DataBaseReader dbReader = new DataBaseReader(db);
         return dbReader.readAlertas();
     }
+
 
     private void updateNomeCultura(Cursor culturaCursor) {
         String nome = null;
@@ -82,12 +88,8 @@ public class AlertasActivity extends AppCompatActivity {
             row.addView(valor);
             row.addView(data);
             row.addView(hora);
-
-
             table.addView(row, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
         }
-
-
     }
 
     private int dpAsPixels(int dp) {

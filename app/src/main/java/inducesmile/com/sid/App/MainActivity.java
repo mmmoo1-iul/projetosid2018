@@ -8,7 +8,6 @@ import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -18,9 +17,7 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 
 import inducesmile.com.sid.Connection.ConnectionHandler;
@@ -37,38 +34,104 @@ public class MainActivity extends AppCompatActivity {
     private static final String username = UserLogin.getInstance().getUsername();
     private static final String password = UserLogin.getInstance().getPassword();
     DataBaseHandler db = new DataBaseHandler(this);
-    public static final String READ_HUMIDADE_TEMPERATURA = "http://" + IP + ":" + PORT + "/sid/getGraphHumTemp.php";
+    public static final String READ_HUMIDADE_TEMPERATURA = "http://" + IP + ":" + PORT + "/sid/getHumidadeTemperatura.php";
     public static final String READ_Cultura = "http://" + IP + ":" + PORT + "/sid/getCultura.php";
+    private String yearString, monthString, dayString, sybaseToday, today;
+    private MainActivity instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        instance = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        db.dbClear();
+        if (getIntent().hasExtra("date")) {
+            int[] yearMonthDay = getIntent().getIntArrayExtra("date");
+            yearString = "" + yearMonthDay[0];
+            monthString = "" + yearMonthDay[1];
+            dayString = "" + yearMonthDay[2];
+        } else {
+            yearString = "" + Calendar.getInstance().get(Calendar.YEAR);
+            monthString = "" + (Calendar.getInstance().get(Calendar.MONTH) + 1);
+            dayString = "" + Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+        }
+        dateToString();
+        sybaseToday = yearString + "-" + monthString + "-" + dayString;
+        today = dayString + "/" + monthString + "/" + yearString;
+        transformDateString();
+
+    }
+
+    public void showDatePicker(View v) {
+        AsyncTask t = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                Intent intent = new Intent(instance, DatePickerActivity.class);
+                startActivity(intent);
+                return null;
+            }
+        }.execute();
+    }
+
+    private void dateToString() {
+        if (Integer.parseInt(monthString) < 10) {
+            monthString = "0" + monthString;
+        }
+        if (Integer.parseInt(dayString) < 10) {
+            dayString = "0" + dayString;
+        }
+    }
+
+    private void transformDateString() {
+        TextView text = (TextView) findViewById(R.id.graphicDate);
+        text.setText(today);
+        System.out.println(today);
     }
 
     @Override
     public void onBackPressed() {
-        super.onBackPressed();
-        Intent i = new Intent(this, LoginActivity.class);
-        startActivity(i);
-        finish();
+        AsyncTask t = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                Intent i = new Intent(instance, LoginActivity.class);
+                startActivity(i);
+                //finish();
+                return null;
+            }
+        }.execute();
     }
 
     public void drawGraph(View v) {
-        Intent i = new Intent(this, GraphicActivity.class);
-        startActivity(i);
-        finish();
+        AsyncTask t = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                Intent i = new Intent(instance, GraphicActivity.class);
+                i.putExtra("date", sybaseToday);
+                startActivity(i);
+                return null;
+            }
+        }.execute();
     }
 
     public void showAlertas(View v) {
-        Intent i = new Intent(this, AlertasActivity.class);
-        startActivity(i);
+        AsyncTask t = new AsyncTask() {
+            @Override
+            protected Object doInBackground(Object[] objects) {
+                Intent i = new Intent(instance, AlertasActivity.class);
+                startActivity(i);
+                return null;
+            }
+        }.execute();
+
     }
 
     public void refreshDB(View v) {
+        db.dbClear();
         EditText idCultura = ((EditText) (findViewById(R.id.idCultura)));
         if (idCultura.getText() != null && idCultura.getText().length() > 0) {
+            SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
+            SharedPreferences.Editor Ed = sp.edit();
+            Ed.putString("idCult", idCultura.getText().toString());
+            Ed.apply();
             writeToDB(idCultura.getText().toString());
             idCultura.onEditorAction(EditorInfo.IME_ACTION_DONE);
             updateNomeCultura();
@@ -129,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
 //A minha base de dados pode não ser exatamente igual à vossa ou podem concluir que é melhor implementar isto de outra maneira, para mudarem a base de dados no android usem as classes DatabaseConfig(criação) e DatabaseHandler(escrita)
 
     public void writeToDB(String idCultura) {
+
         try {
             db.dbClear();
             StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -137,6 +201,7 @@ public class MainActivity extends AppCompatActivity {
             params.put("uid", username);
             params.put("pwd", password);
             params.put("idCult", idCultura);
+            params.put("date", sybaseToday);
             ConnectionHandler jParser = new ConnectionHandler();
 
             JSONArray jsonCultura = jParser.getJSONFromUrl(READ_Cultura, params);
@@ -151,18 +216,7 @@ public class MainActivity extends AppCompatActivity {
                 limSupTemp = obj.getDouble("LIMITESUPERIORTEMPERATURA");
                 limInfHum = obj.getDouble("LIMITEINFERIORHUMIDADE");
                 limSupHum = obj.getDouble("LIMITESUPERIORHUMIDADE");
-                /*SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
-                SharedPreferences.Editor Ed = sp.edit();
-                Ed.putFloat("LIMINFTEMP", (float) limInfTemp);
-                Ed.putFloat("LIMSUPTEMP", (float) limSupTemp);
-                Ed.putFloat("LIMINFHUM", (float) limInfHum);
-                Ed.putFloat("LIMSUPHUM", (float) limSupHum);
-                Ed.apply();*/
-                String yearString = "" + Calendar.getInstance().get(Calendar.YEAR);
-                String monthString = "" + (Calendar.getInstance().get(Calendar.MONTH) + 1);
-                String dayString = "" + Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
-                String today = dayString + "/" + monthString + "/" + yearString;
-                Log.d("DD/MM/YYYY",today);
+
                 JSONArray jsonHumidadeTemperatura = jParser.getJSONFromUrl(READ_HUMIDADE_TEMPERATURA, params);
                 if (jsonHumidadeTemperatura != null) {
                     for (int i = 0; i < jsonHumidadeTemperatura.length(); i++) {

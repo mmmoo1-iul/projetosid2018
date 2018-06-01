@@ -35,7 +35,7 @@ public class GraphicActivity extends AppCompatActivity {
     DataBaseHandler db = new DataBaseHandler(this);
     GraphView graph;
     DataBaseReader reader;
-    String yearString, monthString, dayString;
+    String date;
     GraphicActivity instance;
     Cursor cursor;
     boolean dateChanged = false;
@@ -47,44 +47,14 @@ public class GraphicActivity extends AppCompatActivity {
         setContentView(R.layout.activity_graphic);
         graph = (GraphView) findViewById(R.id.graph);
         if (getIntent().hasExtra("date")) {
-            int[] yearMonthDay = getIntent().getIntArrayExtra("date");
-            yearString = "" + yearMonthDay[0];
-            monthString = "" + yearMonthDay[1];
-            dayString = "" + yearMonthDay[2];
-        } else {
-            yearString = "" + Calendar.getInstance().get(Calendar.YEAR);
-            monthString = "" + (Calendar.getInstance().get(Calendar.MONTH) + 1);
-            dayString = "" + Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+            System.out.println(getIntent().getStringExtra("date"));
+            date = getIntent().getStringExtra("date");
         }
-        dateToString();
-        transformDateString();
         getCursor();
     }
 
-    @Override
-    public void onBackPressed() {
-        Intent i = new Intent(this, MainActivity.class);
-        startActivity(i);
-        finish();
-    }
-
-    private void dateToString() {
-        if (Integer.parseInt(monthString) < 10) {
-            monthString = "0" + monthString;
-        }
-        if (Integer.parseInt(dayString) < 10) {
-            dayString = "0" + dayString;
-        }
-    }
-
-    private void transformDateString() {
-        TextView text = (TextView) findViewById(R.id.graphicDate);
-        text.setText(yearString + "-" + monthString + "-" + dayString);
-    }
-
-
     public void getCursor() {
-        db.dbClear();
+        db.clearTable("HUMIDADETEMPERATURA");
         AsyncTask otherTask = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
@@ -93,30 +63,37 @@ public class GraphicActivity extends AppCompatActivity {
                 String password = sp1.getString("Psw", null);
                 String ip = sp1.getString("ip", null);
                 String port = sp1.getString("port", null);
-                String startMigration = "http://" + ip + ":" + port + "/sid/startMigration.php";
+                String getHumidadeTemperatura = "http://" + ip + ":" + port + "/sid/getHumidadeTemperatura.php";
                 HashMap<String, String> params = new HashMap<>();
                 params.put("uid", username);
                 params.put("pwd", password);
+                params.put("date", date);
                 try {
-                    JSONArray array = new ConnectionHandler().getJSONFromUrl(startMigration, params);
-                    for (int i = 0; i < array.length(); i++) {
-                        JSONObject obj = (JSONObject) array.get(i);
-                        double valorTemp, valorHum;
-                        int id;
-                        String data, hora;
-                        id = obj.getInt("IDMEDICAO");
-                        valorHum = obj.getDouble("VALORMEDICAOHUMIDADE");
-                        valorTemp = obj.getDouble("VALORMEDICAOTEMPERATURA");
-                        data = obj.getString("DATAMEDICAO");
-                        hora = obj.getString("HORAMEDICAO");
-                        try {
-                            db.insert_Humidade_Temperatura(id, hora, valorTemp, valorHum, data);
-                        } catch (SQLiteConstraintException e) {
+                    try {
+                        JSONArray array = new ConnectionHandler().getJSONFromUrl(getHumidadeTemperatura, params);
+                        if (array != null) {
+                            for (int i = 0; i < array.length(); i++) {
+                                JSONObject obj = (JSONObject) array.get(i);
+                                double valorTemp, valorHum;
+                                int id;
+                                String data, hora;
+                                id = obj.getInt("IDMEDICAO");
+                                valorHum = obj.getDouble("VALORMEDICAOHUMIDADE");
+                                valorTemp = obj.getDouble("VALORMEDICAOTEMPERATURA");
+                                data = obj.getString("DATAMEDICAO");
+                                hora = obj.getString("HORAMEDICAO");
+                                try {
+                                    db.insert_Humidade_Temperatura(id, hora, valorTemp, valorHum, data);
+                                } catch (SQLiteConstraintException e) {
+                                }
+                            }
                         }
+                    } catch (Exception e) {
                     }
                     reader = new DataBaseReader(db);
-                    cursor = reader.ReadHumidadeTemperatura("DataMedicao='" + yearString + "-" + monthString + "-" + dayString + "'");
+                    cursor = reader.ReadHumidadeTemperatura("DataMedicao='" + date + "'");
                     drawGraph(cursor);
+//                    cursor.close();
                 } catch (Exception e) {
                 }
                 return null;
@@ -126,18 +103,7 @@ public class GraphicActivity extends AppCompatActivity {
 
 
     //A parte do dia selecionado no calendario ser guardado nas variáveis necessárias nesta classe já está feito, não precisam de mexer em nada referente ao calendário a não ser que queiram melhorar o que eu fiz.
-    public void showDatePicker(View v) {
-        AsyncTask t = new AsyncTask() {
-            @Override
-            protected Object doInBackground(Object[] objects) {
-                Intent intent = new Intent(GraphicActivity.this, DatePickerActivity.class);
-                startActivity(intent);
-                finish();
-                return null;
-            }
-        }.execute();
 
-    }
 
     //Para o gráfico ser desenhado precisam de pelo menos dois valores num dia (é um grafico de linhas), ou seja o cursor entregue a esta função tem de ter registos em duas alturas diferentes no mesmo dia, se quiserem desenhar so com um valor têm de alterar o grafico para um grafico de pontos, este é o link da api que eu usei http://www.android-graphview.org//
     private void drawGraph(Cursor cursor) {
