@@ -66,7 +66,7 @@ public class DataBaseHandler extends SQLiteOpenHelper {
         values.put(DataBaseConfig.Alertas.COLUMN_NAME_HORAMEDICAO, horaMedicao);
         values.put(DataBaseConfig.Alertas.COLUMN_NAME_NOMEVARIAVEL, nomeVariavel);
         values.put(DataBaseConfig.Alertas.COLUMN_NAME_ALERTAS, alerta);
-        getWritableDatabase().insertWithOnConflict(DataBaseConfig.Alertas.TABLE_NAME, null, values, SQLiteDatabase.CONFLICT_REPLACE);
+        getWritableDatabase().insert(DataBaseConfig.Alertas.TABLE_NAME, null, values);
 
 
     }

@@ -45,7 +45,7 @@ public class DataBaseReader {
     public Cursor readAlertas() {
 
         //To do
-        Cursor cursor = db.query(true,
+        Cursor cursor = db.query(
                 DataBaseConfig.Alertas.TABLE_NAME,   // Nome da tabela
                 null,
                 null,

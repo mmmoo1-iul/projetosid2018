@@ -64,7 +64,7 @@ public class LoginActivity extends AppCompatActivity {
         task = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
-                if (!task.isCancelled() &&!stringResult.equals("WORKED")) {
+                if (!task.isCancelled() && !stringResult.equals("WORKED")) {
                     new UserLogin(ip, port, username, password);
                     AsyncTask otherTask = null;
                     HashMap<String, String> params = new HashMap<>();

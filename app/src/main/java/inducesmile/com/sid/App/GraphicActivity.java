@@ -61,6 +61,12 @@ public class GraphicActivity extends AppCompatActivity {
         getCursor();
     }
 
+    @Override
+    public void onBackPressed() {
+        Intent i = new Intent(this, MainActivity.class);
+        startActivity(i);
+        finish();
+    }
 
     private void dateToString() {
         if (Integer.parseInt(monthString) < 10) {

@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     public void drawGraph(View v) {
         Intent i = new Intent(this, GraphicActivity.class);
         startActivity(i);
-
+        finish();
     }
 
     public void showAlertas(View v) {
@@ -158,10 +158,11 @@ public class MainActivity extends AppCompatActivity {
                 Ed.putFloat("LIMINFHUM", (float) limInfHum);
                 Ed.putFloat("LIMSUPHUM", (float) limSupHum);
                 Ed.apply();*/
-                Date currentTime = new Date();
-                SimpleDateFormat sdf = new SimpleDateFormat("DD-MM-YYYY");
-                String date = sdf.format(currentTime);
-                Log.d("DD-MM-YYYY", date);
+                String yearString = "" + Calendar.getInstance().get(Calendar.YEAR);
+                String monthString = "" + (Calendar.getInstance().get(Calendar.MONTH) + 1);
+                String dayString = "" + Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+                String today = dayString + "/" + monthString + "/" + yearString;
+                Log.d("DD/MM/YYYY",today);
                 JSONArray jsonHumidadeTemperatura = jParser.getJSONFromUrl(READ_HUMIDADE_TEMPERATURA, params);
                 if (jsonHumidadeTemperatura != null) {
                     for (int i = 0; i < jsonHumidadeTemperatura.length(); i++) {

@@ -50,10 +50,8 @@ public class DataBaseConfig {
                     Alertas.COLUMN_NAME_VALORMEDICAO + " INTEGER," +
                     Alertas.COLUMN_NAME_HORAMEDICAO + " TIME," +
                     Alertas.COLUMN_NAME_NOMEVARIAVEL + " TEXT, " +
-                    Alertas.COLUMN_NAME_ALERTAS + " TEXT, " +
-                    "PRIMARY KEY (" + Alertas.COLUMN_NAME_DATAMEDICAO +
-                    ", " + Alertas.COLUMN_NAME_VALORMEDICAO + ","
-                    + Alertas.COLUMN_NAME_NOMEVARIAVEL + ")" + ")";
+                    Alertas.COLUMN_NAME_ALERTAS + " TEXT " +
+                    ")";
 
 
     protected static final String SQL_CREATE_CULTURA =
