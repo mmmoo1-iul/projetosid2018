@@ -46,10 +46,7 @@ public class GraphicActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_graphic);
         graph = (GraphView) findViewById(R.id.graph);
-        if (getIntent().hasExtra("date")) {
-            System.out.println(getIntent().getStringExtra("date"));
-            date = getIntent().getStringExtra("date");
-        }
+        date = getIntent().getStringExtra("date");
         getCursor();
     }
 
@@ -90,12 +87,13 @@ public class GraphicActivity extends AppCompatActivity {
                         }
                     } catch (Exception e) {
                     }
-                    reader = new DataBaseReader(db);
-                    cursor = reader.ReadHumidadeTemperatura("DataMedicao='" + date + "'");
-                    drawGraph(cursor);
-//                    cursor.close();
+
                 } catch (Exception e) {
                 }
+                reader = new DataBaseReader(db);
+                cursor = reader.ReadHumidadeTemperatura("DataMedicao='" + date + "'");
+                drawGraph(cursor);
+                cursor.close();
                 return null;
             }
         }.execute();

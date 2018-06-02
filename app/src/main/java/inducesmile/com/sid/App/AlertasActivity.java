@@ -60,13 +60,18 @@ public class AlertasActivity extends AppCompatActivity {
         while (alertasCursor.moveToNext()) {
             TableRow row = new TableRow(this);
             row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.WRAP_CONTENT));
+
             TextView nomeVariavel = new TextView(this);
             nomeVariavel.setText(alertasCursor.getString(alertasCursor.getColumnIndex("NomeVariavel")));
             nomeVariavel.setPadding(dpAsPixels(16), dpAsPixels(5), 0, 0);
 
-            TextView data = new TextView(this);
-            data.setText(alertasCursor.getString(alertasCursor.getColumnIndex("DataMedicao")));
-            data.setPadding(dpAsPixels(16), dpAsPixels(5), 0, 0);
+            TextView alerta = new TextView(this);
+            alerta.setText(alertasCursor.getString(alertasCursor.getColumnIndex("Alertas")));
+            alerta.setPadding(dpAsPixels(16), dpAsPixels(5), 20, 0);
+
+            TextView valor = new TextView(this);
+            valor.setText(Double.toString(alertasCursor.getDouble(alertasCursor.getColumnIndex("ValorMedicao"))));
+            valor.setPadding(dpAsPixels(16), dpAsPixels(5), 0, 0);
 
             TextView hora = new TextView(this);
             String fullHora = alertasCursor.getString(alertasCursor.getColumnIndex("HoraMedicao"));
@@ -75,18 +80,9 @@ public class AlertasActivity extends AppCompatActivity {
             hora.setText(horaFormatted);
             hora.setPadding(dpAsPixels(16), dpAsPixels(5), 0, 0);
 
-            TextView valor = new TextView(this);
-            valor.setText(Double.toString(alertasCursor.getDouble(alertasCursor.getColumnIndex("ValorMedicao"))));
-            valor.setPadding(dpAsPixels(16), dpAsPixels(5), 0, 0);
-
-            TextView alerta = new TextView(this);
-            alerta.setText(alertasCursor.getString(alertasCursor.getColumnIndex("Alertas")));
-            alerta.setPadding(dpAsPixels(16), dpAsPixels(5), 20, 0);
-
             row.addView(nomeVariavel);
             row.addView(alerta);
             row.addView(valor);
-            row.addView(data);
             row.addView(hora);
             table.addView(row, new TableLayout.LayoutParams(TableLayout.LayoutParams.FILL_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
         }

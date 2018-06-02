@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.os.StrictMode;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
@@ -36,55 +37,87 @@ public class MainActivity extends AppCompatActivity {
     DataBaseHandler db = new DataBaseHandler(this);
     public static final String READ_HUMIDADE_TEMPERATURA = "http://" + IP + ":" + PORT + "/sid/getHumidadeTemperatura.php";
     public static final String READ_Cultura = "http://" + IP + ":" + PORT + "/sid/getCultura.php";
-    private String yearString, monthString, dayString, sybaseToday, today;
+    private String sybaseDate, datePicked;
     private MainActivity instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d("MAIN", "STARTED");
         instance = this;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (getIntent().hasExtra("date")) {
-            int[] yearMonthDay = getIntent().getIntArrayExtra("date");
-            yearString = "" + yearMonthDay[0];
-            monthString = "" + yearMonthDay[1];
-            dayString = "" + yearMonthDay[2];
-        } else {
-            yearString = "" + Calendar.getInstance().get(Calendar.YEAR);
-            monthString = "" + (Calendar.getInstance().get(Calendar.MONTH) + 1);
-            dayString = "" + Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
-        }
+        datePicked = Calendar.getInstance().get(Calendar.DAY_OF_MONTH) +
+                "/" + (Calendar.getInstance().get(Calendar.MONTH) + 1)
+                + "/" + Calendar.getInstance().get(Calendar.YEAR);
         dateToString();
-        sybaseToday = yearString + "-" + monthString + "-" + dayString;
-        today = dayString + "/" + monthString + "/" + yearString;
-        transformDateString();
+        sybaseDate = Calendar.getInstance().get(Calendar.YEAR) + "-" +
+                (Calendar.getInstance().get(Calendar.MONTH) + 1) + "-" +
+                Calendar.getInstance().get(Calendar.DAY_OF_MONTH);
+        updateDatePicked();
 
     }
 
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        SharedPreferences sp1 = this.getSharedPreferences("Login", MODE_PRIVATE);
+        datePicked = sp1.getString("datePickerDate", null);
+        dateToString();
+        updateDatePicked();
+
+        EditText idCultura = ((EditText) (findViewById(R.id.idCultura)));
+        Log.d("IDCULTURA", idCultura.getText().toString());
+        if (idCultura.getText() != null && idCultura.getText().length() > 0) {
+            SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
+            SharedPreferences.Editor Ed = sp.edit();
+            Ed.putString("idCult", idCultura.getText().toString());
+            Ed.apply();
+            writeToDB(idCultura.getText().toString());
+            idCultura.onEditorAction(EditorInfo.IME_ACTION_DONE);
+            updateNomeCultura();
+            updateNumeroMedicoes();
+            updateNumeroAlertas();
+        } else {
+            ((TextView) (findViewById(R.id.nomeCultura_tv))).setText("");
+        }
+    }
+
+
     public void showDatePicker(View v) {
+        ((TextView) findViewById(R.id.nomeCultura_tv)).setText("");
         AsyncTask t = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
                 Intent intent = new Intent(instance, DatePickerActivity.class);
+                SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
+                SharedPreferences.Editor Ed = sp.edit();
+                Ed.putString("datePickerDate", datePicked);
+                Ed.apply();
                 startActivity(intent);
+
                 return null;
             }
         }.execute();
     }
 
+
     private void dateToString() {
-        if (Integer.parseInt(monthString) < 10) {
-            monthString = "0" + monthString;
+        String[] dateSplit = datePicked.split("/");
+        String month = dateSplit[1];
+        String day = dateSplit[0];
+        if (Integer.parseInt(month) < 10) {
+            month = "0" + month;
         }
-        if (Integer.parseInt(dayString) < 10) {
-            dayString = "0" + dayString;
+        if (Integer.parseInt(day) < 10) {
+            day = "0" + day;
         }
+        datePicked = day + "/" + month + "/" + dateSplit[2];
+        sybaseDate = dateSplit[2] + "-" + month + "-" + day;
     }
 
-    private void transformDateString() {
+    private void updateDatePicked() {
         TextView text = (TextView) findViewById(R.id.graphicDate);
-        text.setText(today);
-        System.out.println(today);
+        text.setText(datePicked);
     }
 
     @Override
@@ -92,9 +125,12 @@ public class MainActivity extends AppCompatActivity {
         AsyncTask t = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
+                SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
+                SharedPreferences.Editor Ed = sp.edit();
+                Ed.putString("datePickerDate", null);
                 Intent i = new Intent(instance, LoginActivity.class);
                 startActivity(i);
-                //finish();
+                finish();
                 return null;
             }
         }.execute();
@@ -105,7 +141,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             protected Object doInBackground(Object[] objects) {
                 Intent i = new Intent(instance, GraphicActivity.class);
-                i.putExtra("date", sybaseToday);
+                i.putExtra("date", sybaseDate);
                 startActivity(i);
                 return null;
             }
@@ -125,7 +161,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void refreshDB(View v) {
-        db.dbClear();
         EditText idCultura = ((EditText) (findViewById(R.id.idCultura)));
         if (idCultura.getText() != null && idCultura.getText().length() > 0) {
             SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
@@ -143,7 +178,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateNumeroMedicoes() {
-
         //To Do
 
         DataBaseReader dbReader = new DataBaseReader(db);
@@ -156,7 +190,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void updateNumeroAlertas() {
-
         //To Do
         DataBaseReader dbReader = new DataBaseReader(db);
 
@@ -168,7 +201,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateNomeCultura() {
-
         //To do?
         DataBaseReader dbReader = new DataBaseReader(db);
 
@@ -201,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
             params.put("uid", username);
             params.put("pwd", password);
             params.put("idCult", idCultura);
-            params.put("date", sybaseToday);
+            params.put("date", sybaseDate);
             ConnectionHandler jParser = new ConnectionHandler();
 
             JSONArray jsonCultura = jParser.getJSONFromUrl(READ_Cultura, params);
