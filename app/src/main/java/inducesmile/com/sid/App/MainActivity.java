@@ -59,10 +59,12 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onRestart() {
+        String copy = datePicked;
         super.onRestart();
         SharedPreferences sp1 = this.getSharedPreferences("Login", MODE_PRIVATE);
         datePicked = sp1.getString("datePickerDate", null);
-        dateToString();
+        if (!copy.equals(datePicked))
+            dateToString();
         updateDatePicked();
 
         EditText idCultura = ((EditText) (findViewById(R.id.idCultura)));
