@@ -62,18 +62,14 @@ public class MainActivity extends AppCompatActivity {
         String copy = datePicked;
         super.onRestart();
         SharedPreferences sp1 = this.getSharedPreferences("Login", MODE_PRIVATE);
-        datePicked = sp1.getString("datePickerDate", null);
-        if (!copy.equals(datePicked))
+        datePicked = sp1.getString("datePickerDate", datePicked);
+        if (copy != null && !copy.equals(datePicked))
             dateToString();
         updateDatePicked();
 
         EditText idCultura = ((EditText) (findViewById(R.id.idCultura)));
         Log.d("IDCULTURA", idCultura.getText().toString());
         if (idCultura.getText() != null && idCultura.getText().length() > 0) {
-            SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
-            SharedPreferences.Editor Ed = sp.edit();
-            Ed.putString("idCult", idCultura.getText().toString());
-            Ed.apply();
             writeToDB(idCultura.getText().toString());
             idCultura.onEditorAction(EditorInfo.IME_ACTION_DONE);
             updateNomeCultura();
@@ -84,6 +80,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
+        SharedPreferences.Editor Ed = sp.edit();
+        Ed.putString("datePickerDate", null);
+        Ed.apply();
+        db.dbClear();
+    }
 
     public void showDatePicker(View v) {
         ((TextView) findViewById(R.id.nomeCultura_tv)).setText("");
@@ -104,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
 
     private void dateToString() {
+        System.out.println("DATEPICKED " + datePicked);
         String[] dateSplit = datePicked.split("/");
         String month = dateSplit[1];
         String day = dateSplit[0];
