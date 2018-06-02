@@ -42,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        db.dbClear();
         Log.d("MAIN", "STARTED");
         instance = this;
         super.onCreate(savedInstanceState);
