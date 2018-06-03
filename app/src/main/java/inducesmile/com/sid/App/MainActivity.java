@@ -60,8 +60,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onRestart() {
-        String copy = datePicked;
         super.onRestart();
+        String copy = datePicked;
         SharedPreferences sp1 = this.getSharedPreferences("Login", MODE_PRIVATE);
         datePicked = sp1.getString("datePickerDate", datePicked);
         if (copy != null && !copy.equals(datePicked))
@@ -244,6 +244,7 @@ public class MainActivity extends AppCompatActivity {
             params.put("idCult", idCultura);
             params.put("date", sybaseDate);
             ConnectionHandler jParser = new ConnectionHandler();
+
 
             JSONArray jsonCultura = jParser.getJSONFromUrl(READ_Cultura, params);
             double limInfTemp = 0, limSupTemp = 0, limInfHum = 0, limSupHum = 0;

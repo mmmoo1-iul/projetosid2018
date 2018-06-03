@@ -8,7 +8,7 @@ import org.json.JSONObject;
 public class PahoClient implements MqttCallback {
 
     private MqttClient client;
-    private static final String topic = "sid_lab_2018";
+    private static final String topic = "sid_lab_2018_g27";
     private MongoConnector mongoConnection;
 
     public PahoClient() {
@@ -29,7 +29,7 @@ public class PahoClient implements MqttCallback {
     public void messageArrived(String topic, MqttMessage message)
             throws Exception {
         MongoConnector mongoConnector = (MongoConnector) mongoConnection;
-        String msg = message.toString();
+        String msg = message.toString().trim();
         if (msg.startsWith("{") && msg.endsWith("}"))
             mongoConnector.addToQueue(new JSONObject(msg));
     }
@@ -40,7 +40,7 @@ public class PahoClient implements MqttCallback {
 
     public void connect() {
         try {
-            client = new MqttClient("tcp://iot.eclipse.org:1883", "Sending");
+            client = new MqttClient("tcp://iot.eclipse.org:1883", "");
             client.connect();
             client.setCallback(this);
             client.subscribe(topic);
