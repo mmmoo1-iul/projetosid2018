@@ -93,7 +93,6 @@ public class GraphicActivity extends AppCompatActivity {
                 reader = new DataBaseReader(db);
                 cursor = reader.ReadHumidadeTemperatura("DataMedicao='" + date + "'");
                 drawGraph(cursor);
-                cursor.close();
                 return null;
             }
         }.execute();

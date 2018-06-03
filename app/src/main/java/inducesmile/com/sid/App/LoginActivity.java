@@ -60,32 +60,33 @@ public class LoginActivity extends AppCompatActivity {
         Ed.putString("ip", ip);
         Ed.putString("port", port);
         Ed.apply();
+        if (username != null && password != null && ip != null && port != null && !username.equalsIgnoreCase("dba")) {
+            final String checkLogin = "http://" + ip + ":" + port + "/sid/checkLogin.php";
 
-        final String checkLogin = "http://" + ip + ":" + port + "/sid/checkLogin.php";
-
-        task = new AsyncTask() {
-            @Override
-            protected Object doInBackground(Object[] objects) {
-                if (!stringResult.equals("WORKED")) {
-                    new UserLogin(ip, port, username, password);
-                    AsyncTask otherTask = null;
-                    HashMap<String, String> params = new HashMap<>();
-                    params.put("uid", username);
-                    params.put("pwd", password);
-                    params.put("db", "HumidadeTemperatura");
-                    stringResult = ConnectionHandler.getStringFromURL(checkLogin, params);
-                    if (stringResult != null && stringResult.equals("WORKED")) {
-                        Intent i = new Intent(instance, MainActivity.class);
-                        startActivity(i);
-                        finish();
-                    } else {
-                        stringResult = "FAILED";
-                        task = null;
+            task = new AsyncTask() {
+                @Override
+                protected Object doInBackground(Object[] objects) {
+                    if (!stringResult.equals("WORKED")) {
+                        new UserLogin(ip, port, username, password);
+                        AsyncTask otherTask = null;
+                        HashMap<String, String> params = new HashMap<>();
+                        params.put("uid", username);
+                        params.put("pwd", password);
+                        params.put("db", "HumidadeTemperatura");
+                        stringResult = ConnectionHandler.getStringFromURL(checkLogin, params);
+                        if (stringResult != null && stringResult.equals("WORKED")) {
+                            Intent i = new Intent(instance, MainActivity.class);
+                            startActivity(i);
+                            finish();
+                        } else {
+                            stringResult = "FAILED";
+                            task = null;
+                        }
                     }
+                    return null;
                 }
-                return null;
-            }
-        }.execute();
+            }.execute();
+        }
     }
 
 }
