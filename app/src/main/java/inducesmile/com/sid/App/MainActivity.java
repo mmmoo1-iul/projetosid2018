@@ -30,19 +30,29 @@ import inducesmile.com.sid.R;
 @SuppressWarnings("all")
 public class MainActivity extends AppCompatActivity {
 
-    private static final String IP = UserLogin.getInstance().getIp();
-    private static final String PORT = UserLogin.getInstance().getPort();
-    private static final String username = UserLogin.getInstance().getUsername();
-    private static final String password = UserLogin.getInstance().getPassword();
+    private static String IP = "";
+    private static String PORT = "";
+    private static String username = "";
+    private static String password = "";
     DataBaseHandler db = new DataBaseHandler(this);
-    public static final String READ_HUMIDADE_TEMPERATURA = "http://" + IP + ":" + PORT + "/sid/getHumidadeTemperatura.php";
-    public static final String READ_Cultura = "http://" + IP + ":" + PORT + "/sid/getCultura.php";
+    public static String READ_HUMIDADE_TEMPERATURA = "";
+    public static String READ_Cultura = "";
     private String sybaseDate, datePicked;
     private MainActivity instance;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         db.dbClear();
+        SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
+        SharedPreferences.Editor Ed = sp.edit();
+        Ed.putString("datePickerDate", null);
+        Ed.putString("idCult", null);
+        username = sp.getString("Unm", null);
+        password = sp.getString("Psw", null);
+        IP = sp.getString("ip", null);
+        PORT = sp.getString("port", null);
+        READ_HUMIDADE_TEMPERATURA = "http://" + IP + ":" + PORT + "/sid/getHumidadeTemperatura.php";
+        READ_Cultura = "http://" + IP + ":" + PORT + "/sid/getCultura.php";
         Log.d("MAIN", "STARTED");
         instance = this;
         super.onCreate(savedInstanceState);
@@ -134,9 +144,6 @@ public class MainActivity extends AppCompatActivity {
         AsyncTask t = new AsyncTask() {
             @Override
             protected Object doInBackground(Object[] objects) {
-                SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
-                SharedPreferences.Editor Ed = sp.edit();
-                Ed.putString("datePickerDate", null);
                 Intent i = new Intent(instance, LoginActivity.class);
                 startActivity(i);
                 finish();

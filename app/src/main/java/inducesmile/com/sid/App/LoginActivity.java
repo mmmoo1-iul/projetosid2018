@@ -53,16 +53,16 @@ public class LoginActivity extends AppCompatActivity {
         password = ((EditText) (findViewById(R.id.password))).getText().toString();
         ip = ((EditText) (findViewById(R.id.ip))).getText().toString();
         port = ((EditText) (findViewById(R.id.port))).getText().toString();
-        SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
-        SharedPreferences.Editor Ed = sp.edit();
-        Ed.putString("Unm", username);
-        Ed.putString("Psw", password);
-        Ed.putString("ip", ip);
-        Ed.putString("port", port);
-        Ed.apply();
+
         if (username != null && password != null && ip != null && port != null && !username.equalsIgnoreCase("dba")) {
             final String checkLogin = "http://" + ip + ":" + port + "/sid/checkLogin.php";
-
+            SharedPreferences sp = getSharedPreferences("Login", MODE_PRIVATE);
+            SharedPreferences.Editor Ed = sp.edit();
+            Ed.putString("Unm", username);
+            Ed.putString("Psw", password);
+            Ed.putString("ip", ip);
+            Ed.putString("port", port);
+            Ed.apply();
             task = new AsyncTask() {
                 @Override
                 protected Object doInBackground(Object[] objects) {
