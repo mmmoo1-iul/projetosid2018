@@ -198,7 +198,7 @@ public class MainActivity extends AppCompatActivity {
 
         DataBaseReader dbReader = new DataBaseReader(db);
 
-        Cursor cursor = dbReader.ReadHumidadeTemperatura(null);
+        Cursor cursor = dbReader.ReadHumidadeTemperatura("DataMedicao='" + sybaseDate + "'");
         int totalMedicoes = cursor.getCount();
         TextView text = (TextView) findViewById(R.id.numeroMedicoesInt);
         text.setText(Integer.toString(totalMedicoes));

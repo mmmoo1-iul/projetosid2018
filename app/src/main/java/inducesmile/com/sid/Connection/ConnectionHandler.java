@@ -87,7 +87,6 @@ public class ConnectionHandler {
                 Log.d("Line", line);
                 result.append(line);
             }
-            System.out.println("Result generated from PHP file : " + result.toString());
             return result.toString();
         } catch (Exception e) {
             e.printStackTrace();
