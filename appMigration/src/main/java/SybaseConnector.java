@@ -40,8 +40,12 @@ public class SybaseConnector {
                         System.out.println("Migration Starting! " + queueDataToTransmit.size() + " item(s) on queue.");
                         try {
                             double objTemp, objHum;
-                            objTemp = Double.parseDouble((String) obj.get("temperature"));
-                            objHum = Double.parseDouble((String) obj.get("humidity"));
+                            if (obj.toString().indexOf("nan") == -1) {
+                                objTemp = Double.parseDouble((String) obj.get("temperature"));
+                                objHum = Double.parseDouble((String) obj.get("humidity"));
+                            } else {
+                                continue;
+                            }
 
                             if (lastHum == 0 && lastTemp == 0) {
                                 try {
@@ -64,7 +68,6 @@ public class SybaseConnector {
                                     }
                                 } else {
                                     failureList.add(obj);
-                                    System.out.println("FAILS : " + failureList.size());
                                     if (failureList.size() == 12) {
                                         while (!failureList.isEmpty()) {
                                             System.out.println("Migration Starting! " + failureList.size() + " item(s) on queue.");

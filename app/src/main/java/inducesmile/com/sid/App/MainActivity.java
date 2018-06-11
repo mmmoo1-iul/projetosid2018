@@ -88,6 +88,8 @@ public class MainActivity extends AppCompatActivity {
             updateNumeroAlertas();
         } else {
             ((TextView) (findViewById(R.id.nomeCultura_tv))).setText("");
+            ((TextView) (findViewById(R.id.numeroAlertasInt))).setText("0");
+            ((TextView) (findViewById(R.id.numeroMedicoesInt))).setText("0");
         }
     }
 
@@ -288,10 +290,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void validate(double limInf, double limSup, String horaMedicao, double valorMedicao, String dataMedicao, String variable) {
         String alerta = "";
-        if (valorMedicao - limInf <= 1) {
+        if (valorMedicao - limInf < 1) {
             alerta = "Próx. Lim. Inf.";
         } else {
-            if (limSup - valorMedicao <= 1) {
+            if (limSup - valorMedicao < 1) {
                 alerta = "Próx. Lim. Sup.";
             }
         }

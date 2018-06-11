@@ -8,7 +8,7 @@ import org.json.JSONObject;
 public class PahoClient implements MqttCallback {
 
     private MqttClient client;
-    private static final String topic = "sid_lab_2018_g27";
+    private static final String topic = "sid_lab_2018";
     private MongoConnector mongoConnection;
 
     public PahoClient() {
@@ -55,7 +55,6 @@ public class PahoClient implements MqttCallback {
             }
         }
     }
-
 
     public void setMongoConnection(MongoConnector mongoConnection) {
         this.mongoConnection = mongoConnection;
